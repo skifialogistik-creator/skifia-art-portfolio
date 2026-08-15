@@ -173,23 +173,32 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   position: fixed;
   z-index: 12;
   top: 17vh;
-  right: -7vw;
-  width: clamp(180px, 31vw, 470px);
+  right: -0.5rem;
+  width: clamp(185px, 17vw, 265px);
   height: min(62vh, 620px);
   pointer-events: none;
   object-fit: cover;
   object-position: center;
   clip-path: inset(18% 0 18% 0);
   mix-blend-mode: multiply;
-  filter: grayscale(1) contrast(1.1);
+  filter: grayscale(0.18) contrast(1.28) drop-shadow(-12px 12px 18px rgba(7, 92, 112, 0.18));
   opacity: 0;
   transform: translate3d(18px, 0, 0) rotate(var(--hand-angle, -4deg)) scale(var(--hand-scale, 1));
   transition: opacity 480ms cubic-bezier(0.16, 1, 0.3, 1), transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .hand-motif-active {
-  opacity: 0.16;
+  opacity: 0.32;
   transform: translate3d(var(--hand-shift, 0), 0, 0) rotate(var(--hand-angle, -4deg)) scale(var(--hand-scale, 1));
+}
+
+main > section:not(#top):not(#hand-scene):not(#control-story):not(#services) > div {
+  position: relative;
+  z-index: 13;
+}
+
+main > section:not(#top):not(#hand-scene):not(#control-story):not(#services) {
+  padding-right: clamp(12rem, 20vw, 18rem);
 }
 
 .hand-gesture-label {
@@ -226,6 +235,31 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .hand-gesture-label small { margin-top: 2px; color: #71837e; font-size: 8px; letter-spacing: 0.08em; }
 .hand-gesture-label-active { opacity: 1; transform: translateY(0); }
 
+.hand-sound-toggle {
+  position: fixed;
+  z-index: 14;
+  right: 2rem;
+  bottom: 5.15rem;
+  border: 1px solid #7f9890;
+  background: rgba(255,255,255,0.84);
+  color: #36514a;
+  padding: 0.5rem 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  box-shadow: 2px 2px 0 rgba(7,92,112,0.12);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition: background-color 180ms ease-out, color 180ms ease-out, transform 180ms ease-out;
+}
+
+.hand-sound-toggle-active { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.hand-sound-toggle:hover:not(:disabled), .hand-sound-toggle[aria-pressed="true"] { background: #075c70; color: white; }
+.hand-sound-toggle:active:not(:disabled) { transform: scale(0.96); }
+.hand-sound-toggle:disabled { opacity: 0.45; cursor: not-allowed; }
+
 #services .border-t {
   display: grid;
   gap: 0.75rem;
@@ -257,12 +291,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 @media (max-width: 639px) {
   .hand-motif {
     top: 25vh;
-    right: -24vw;
-    width: 72vw;
-    height: 44vh;
+    right: -0.9rem;
+    width: 32vw;
+    height: 34vh;
   }
-  .hand-motif-active { opacity: 0.1; }
+  .hand-motif-active { opacity: 0.24; }
   .hand-gesture-label { right: 1rem; bottom: 1rem; }
+  .hand-sound-toggle { right: 1rem; bottom: 4.15rem; }
+  main > section:not(#top):not(#hand-scene):not(#control-story):not(#services) { padding-right: 7.75rem; }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -278,4 +314,5 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .scroll-reveal { opacity: 1; transform: none; }
   .hand-motif { opacity: 1; filter: none; transform: none; }
   .hand-gesture-label { opacity: 1; transform: none; }
+  .hand-sound-toggle { display: none; }
 }

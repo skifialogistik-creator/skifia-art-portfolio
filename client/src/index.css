@@ -8,9 +8,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-display: "Manrope", sans-serif;
-  --font-body: "IBM Plex Sans", sans-serif;
-  --font-mono: "IBM Plex Mono", monospace;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-body: "DM Sans", sans-serif;
+  --font-mono: "DM Mono", monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -67,7 +67,7 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "DM Sans", sans-serif;
   font-size: 16px;
   line-height: 1.55;
   overflow-x: hidden;
@@ -149,10 +149,35 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   transform: translateY(0);
 }
 
+.control-card {
+  min-height: 270px;
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 220ms ease-out, border-color 220ms ease-out;
+}
+
+#services .border-t {
+  display: grid;
+  gap: 0.75rem;
+  border-top-width: 0;
+}
+
+#services .border-t > article {
+  border: 1px solid rgba(255,255,255,0.24);
+  padding: 1.25rem;
+  background: rgba(11, 35, 39, 0.3);
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), background-color 220ms ease-out, border-color 220ms ease-out;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .interactive-card:hover { transform: translateY(-5px) rotate(-0.25deg); box-shadow: 8px 10px 0 rgba(7, 92, 112, 0.12); }
   .interactive-step:hover { transform: translateX(8px); }
   .interactive-step:hover > div:first-child { background: #075c70; color: #fcfaf5; }
+  .control-card:hover { transform: translateY(-7px); border-color: #075c70; box-shadow: 8px 10px 0 rgba(7, 92, 112, 0.12); }
+  #services .border-t > article:hover { transform: translateX(8px); border-color: rgba(182,237,229,0.9); background: rgba(7,92,112,0.62); }
+}
+
+@media (min-width: 640px) {
+  #services .border-t { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #services .border-t > article { min-height: 168px; }
 }
 
 @media (prefers-reduced-motion: no-preference) {

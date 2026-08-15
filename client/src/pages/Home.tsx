@@ -5,6 +5,7 @@
 import { useEffect, useState } from "react";
 import BriefApplication from "@/components/BriefApplication";
 import InteractiveHero from "@/components/InteractiveHero";
+import ProjectPathGame from "@/components/ProjectPathGame";
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -170,6 +171,7 @@ export default function Home() {
 
         <section className="relative overflow-hidden bg-[#075c70] text-[#f5f2ea]"><img src="/manus-storage/handover-checklist-art_07008bb9.png" alt="Абстрактный чек-лист передачи проекта" className="absolute right-0 top-0 hidden h-full w-[36%] object-cover opacity-70 mix-blend-screen lg:block" /><div className="relative mx-auto max-w-[1440px] px-5 py-16 sm:px-8 sm:py-24 lg:px-12"><div className="max-w-3xl"><SectionLabel number="11">Финальный результат</SectionLabel><blockquote className="mt-8 font-display text-4xl font-extrabold leading-[1.08] tracking-[-0.065em] sm:text-6xl">«Сайт принадлежит вам не тогда, когда он опубликован, а когда вы можете управлять каждым его ключевым элементом».</blockquote><p className="mt-8 max-w-2xl text-lg leading-8 text-[#c9dfd8]">В финальном акте или письме фиксируются: адрес сайта, дата запуска, сервисы, владелец домена, исходный код, база данных, интеграции, сроки оплаченных услуг и контакты для поддержки.</p></div></div></section>
 
+        <ProjectPathGame />
         <BriefApplication />
 
         <section className="mx-auto max-w-[1440px] px-5 py-16 sm:px-8 sm:py-24 lg:px-12"><div className="grid gap-10 lg:grid-cols-[0.72fr_1.28fr]"><div><SectionLabel number="13">Коротко о важном</SectionLabel><h2 className="mt-7 font-display text-4xl font-extrabold leading-[1.03] tracking-[-0.065em] sm:text-5xl">Вопросы, которые стоит задать до старта.</h2></div><div className="border-t border-[#cfc8bc]">{faqs.map(([question, answer], index) => <div key={question} className="border-b border-[#cfc8bc]"><button className="flex w-full items-center justify-between gap-5 py-5 text-left" onClick={() => setOpenFaq(openFaq === index ? null : index)} aria-expanded={openFaq === index}><span className="font-display text-xl font-bold tracking-[-0.03em]">{question}</span><ChevronDown className={`h-5 w-5 shrink-0 text-[#075c70] transition-transform duration-200 ${openFaq === index ? "rotate-180" : ""}`} /></button>{openFaq === index && <p className="max-w-2xl pb-6 text-[15px] leading-7 text-[#59625e]">{answer}</p>}</div>)}</div></div></section>

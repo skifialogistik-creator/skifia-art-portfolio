@@ -169,6 +169,29 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 220ms ease-out, border-color 220ms ease-out;
 }
 
+.hand-motif {
+  position: fixed;
+  z-index: 12;
+  top: 17vh;
+  right: -7vw;
+  width: clamp(180px, 31vw, 470px);
+  height: min(62vh, 620px);
+  pointer-events: none;
+  object-fit: cover;
+  object-position: center;
+  clip-path: inset(18% 0 18% 0);
+  mix-blend-mode: multiply;
+  filter: grayscale(1) contrast(1.1);
+  opacity: 0;
+  transform: translate3d(18px, 0, 0) rotate(-4deg);
+  transition: opacity 480ms cubic-bezier(0.16, 1, 0.3, 1), transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hand-motif-active {
+  opacity: 0.16;
+  transform: translate3d(0, 0, 0) rotate(-4deg);
+}
+
 #services .border-t {
   display: grid;
   gap: 0.75rem;
@@ -195,6 +218,16 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 @media (min-width: 640px) {
   #services .border-t { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   #services .border-t > article { min-height: 168px; }
+}
+
+@media (max-width: 639px) {
+  .hand-motif {
+    top: 25vh;
+    right: -24vw;
+    width: 72vw;
+    height: 44vh;
+  }
+  .hand-motif-active { opacity: 0.1; }
 }
 
 @media (prefers-reduced-motion: no-preference) {

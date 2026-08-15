@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import BriefApplication from "@/components/BriefApplication";
 import InteractiveHero from "@/components/InteractiveHero";
 import ProjectPathGame from "@/components/ProjectPathGame";
+import RoboticHandMotif from "@/components/RoboticHandMotif";
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -164,6 +165,7 @@ export default function Home() {
 
       <main>
         <InteractiveHero />
+        <RoboticHandMotif />
 
         <section id="ownership" className="border-y border-[#d6d0c5] bg-[#fcfaf5]">
           <div className="mx-auto grid max-w-[1440px] lg:grid-cols-[0.82fr_1.18fr]">

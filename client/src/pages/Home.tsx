@@ -135,7 +135,7 @@ export default function Home() {
             <a href="#process" className="transition-colors hover:text-[#075c70]">Передача</a>
             <a href="#checklist" className="transition-colors hover:text-[#075c70]">Чек-лист</a>
           </nav>
-          <a href="#brief" className="hidden border border-[#075c70] bg-[#075c70] px-4 py-2.5 font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-[#fcfaf5] transition-all duration-200 hover:bg-[#064c5c] active:scale-[0.97] sm:block">Собрать бриф</a>
+          <a href="#brief" style={{ color: "#ffffff" }} className="hidden border border-[#043e4a] bg-[#075c70] px-4 py-2.5 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] !text-white shadow-[0_2px_0_#043e4a] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#064c5c] hover:!text-white active:translate-y-0 active:scale-[0.97] sm:block">Собрать бриф</a>
           <button className="grid h-10 w-10 place-items-center border border-[#b7b0a5] lg:hidden" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"} aria-expanded={menuOpen}>
             {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>

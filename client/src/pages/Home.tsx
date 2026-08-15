@@ -121,6 +121,25 @@ export default function Home() {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const cards = document.querySelectorAll<HTMLElement>("main article:not(.control-card):not(.interactive-step)");
+    cards.forEach((card, index) => {
+      card.classList.add("card-reveal");
+      card.style.setProperty("--card-delay", `${(index % 6) * 70}ms`);
+    });
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("card-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.18 });
+    cards.forEach((card) => observer.observe(card));
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="min-h-screen overflow-hidden bg-[#f4f0e8] text-[#202625]">
       <header className="sticky top-0 z-50 border-b border-[#d6d0c5] bg-[#f4f0e8]/95 backdrop-blur-md">

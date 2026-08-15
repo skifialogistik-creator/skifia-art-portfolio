@@ -149,6 +149,21 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   transform: translateY(0);
 }
 
+.card-reveal {
+  opacity: 0;
+  filter: blur(5px);
+  transform: translate3d(0, 32px, 0) scale(0.97);
+  transition: opacity 540ms cubic-bezier(0.16, 1, 0.3, 1), transform 620ms cubic-bezier(0.16, 1, 0.3, 1), filter 480ms ease-out;
+  transition-delay: var(--card-delay, 0ms);
+  will-change: opacity, transform, filter;
+}
+
+.card-reveal.card-visible {
+  opacity: 1;
+  filter: blur(0);
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
 .control-card {
   min-height: 270px;
   transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 220ms ease-out, border-color 220ms ease-out;
@@ -173,6 +188,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .interactive-step:hover > div:first-child { background: #075c70; color: #fcfaf5; }
   .control-card:hover { transform: translateY(-7px); border-color: #075c70; box-shadow: 8px 10px 0 rgba(7, 92, 112, 0.12); }
   #services .border-t > article:hover { transform: translateX(8px); border-color: rgba(182,237,229,0.9); background: rgba(7,92,112,0.62); }
+  .card-reveal.card-visible.interactive-card:hover { transform: translateY(-5px) rotate(-0.25deg); }
+  .card-reveal.card-visible#services .border-t > article:hover { transform: translateX(8px); }
 }
 
 @media (min-width: 640px) {
@@ -191,4 +208,5 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   .interactive-scanlines { display: none; }
   .scroll-reveal { opacity: 1; transform: none; }
+  .card-reveal { opacity: 1; filter: none; transform: none; }
 }

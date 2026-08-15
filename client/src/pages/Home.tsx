@@ -3,17 +3,16 @@
  * тёплая бумага, графит, контрольный кобальт, служебные номера и маршрут передачи.
  */
 import { useState } from "react";
+import BriefApplication from "@/components/BriefApplication";
 import {
   ArrowDownRight,
   ArrowUpRight,
   Bot,
   Check,
-  CheckCircle2,
   ChevronDown,
   ClipboardCheck,
   Cloud,
   Code2,
-  Copy,
   Database,
   ExternalLink,
   FileCheck2,
@@ -102,20 +101,7 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [checked, setChecked] = useState<boolean[]>(Array(checklistLabels.length).fill(false));
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const [briefCopied, setBriefCopied] = useState(false);
-  const [brief, setBrief] = useState({ name: "", business: "", contacts: "", services: "", geography: "", note: "" });
   const completeCount = checked.filter(Boolean).length;
-
-  const copyBrief = async () => {
-    const text = `БРИФ НА САЙТ\n\nИмя / компания: ${brief.name || "—"}\nЧем занимается бизнес: ${brief.business || "—"}\nКонтакты: ${brief.contacts || "—"}\nУслуги и цены: ${brief.services || "—"}\nГеография работы: ${brief.geography || "—"}\nДополнительная информация: ${brief.note || "—"}`;
-    try {
-      await navigator.clipboard.writeText(text);
-      setBriefCopied(true);
-      window.setTimeout(() => setBriefCopied(false), 2400);
-    } catch {
-      setBriefCopied(false);
-    }
-  };
 
   return (
     <div className="min-h-screen overflow-hidden bg-[#f4f0e8] text-[#202625]">
@@ -185,7 +171,7 @@ export default function Home() {
 
         <section className="relative overflow-hidden bg-[#075c70] text-[#f5f2ea]"><img src="/manus-storage/handover-checklist-art_07008bb9.png" alt="Абстрактный чек-лист передачи проекта" className="absolute right-0 top-0 hidden h-full w-[36%] object-cover opacity-70 mix-blend-screen lg:block" /><div className="relative mx-auto max-w-[1440px] px-5 py-16 sm:px-8 sm:py-24 lg:px-12"><div className="max-w-3xl"><SectionLabel number="11">Финальный результат</SectionLabel><blockquote className="mt-8 font-display text-4xl font-extrabold leading-[1.08] tracking-[-0.065em] sm:text-6xl">«Сайт принадлежит вам не тогда, когда он опубликован, а когда вы можете управлять каждым его ключевым элементом».</blockquote><p className="mt-8 max-w-2xl text-lg leading-8 text-[#c9dfd8]">В финальном акте или письме фиксируются: адрес сайта, дата запуска, сервисы, владелец домена, исходный код, база данных, интеграции, сроки оплаченных услуг и контакты для поддержки.</p></div></div></section>
 
-        <section id="brief" className="bg-[#fcfaf5]"><div className="mx-auto grid max-w-[1440px] lg:grid-cols-[0.72fr_1.28fr]"><div className="border-b border-[#d6d0c5] p-6 sm:p-10 lg:border-b-0 lg:border-r lg:p-12"><SectionLabel number="12">Бриф для старта</SectionLabel><h2 className="mt-7 font-display text-4xl font-extrabold leading-[1.03] tracking-[-0.065em] sm:text-5xl">Соберите главное в одном сообщении.</h2><p className="mt-6 max-w-sm leading-7 text-[#59625e]">Заполните поля, скопируйте готовый бриф и отправьте его удобным способом. Данные не отправляются с сайта и остаются на вашем устройстве.</p><div className="mt-9 flex items-center gap-3 text-sm text-[#49615c]"><ShieldCheck className="h-5 w-5 text-[#075c70]" /><span>Без аккаунта. Без пароля. Без передачи данных.</span></div></div><form className="p-6 sm:p-10 lg:p-12" onSubmit={(event) => { event.preventDefault(); void copyBrief(); }}><div className="grid gap-6 sm:grid-cols-2"><label className="block"><span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#66706d]">Имя / компания</span><input value={brief.name} onChange={(event) => setBrief({ ...brief, name: event.target.value })} className="mt-2 w-full border-b border-[#a9b0ab] bg-transparent px-0 py-3 text-lg outline-none transition-colors focus:border-[#075c70]" placeholder="Например, Studio Forma" /></label><label className="block"><span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#66706d]">Чем занимается бизнес</span><input value={brief.business} onChange={(event) => setBrief({ ...brief, business: event.target.value })} className="mt-2 w-full border-b border-[#a9b0ab] bg-transparent px-0 py-3 text-lg outline-none transition-colors focus:border-[#075c70]" placeholder="Услуги, ниша, формат" /></label><label className="block"><span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#66706d]">Контакты</span><input value={brief.contacts} onChange={(event) => setBrief({ ...brief, contacts: event.target.value })} className="mt-2 w-full border-b border-[#a9b0ab] bg-transparent px-0 py-3 text-lg outline-none transition-colors focus:border-[#075c70]" placeholder="Телефон, e-mail, Telegram" /></label><label className="block"><span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#66706d]">География работы</span><input value={brief.geography} onChange={(event) => setBrief({ ...brief, geography: event.target.value })} className="mt-2 w-full border-b border-[#a9b0ab] bg-transparent px-0 py-3 text-lg outline-none transition-colors focus:border-[#075c70]" placeholder="Город, регион, онлайн" /></label><label className="block sm:col-span-2"><span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#66706d]">Услуги и цены</span><textarea value={brief.services} onChange={(event) => setBrief({ ...brief, services: event.target.value })} className="mt-2 min-h-20 w-full resize-y border-b border-[#a9b0ab] bg-transparent px-0 py-3 text-lg outline-none transition-colors focus:border-[#075c70]" placeholder="Что вы предлагаете и какие условия уже известны" /></label><label className="block sm:col-span-2"><span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#66706d]">Дополнительная информация</span><textarea value={brief.note} onChange={(event) => setBrief({ ...brief, note: event.target.value })} className="mt-2 min-h-20 w-full resize-y border-b border-[#a9b0ab] bg-transparent px-0 py-3 text-lg outline-none transition-colors focus:border-[#075c70]" placeholder="Материалы, сроки, пожелания к сайту" /></label></div><div className="mt-9 flex flex-wrap items-center gap-5"><button type="submit" className="inline-flex items-center gap-3 bg-[#075c70] px-5 py-4 font-mono text-[11px] font-medium uppercase tracking-[0.13em] text-[#fcfaf5] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#064c5c] active:scale-[0.97]">{briefCopied ? <><CheckCircle2 className="h-4 w-4" /> Скопировано</> : <><Copy className="h-4 w-4" /> Скопировать бриф</>}</button><span className="text-sm text-[#66706d]">Затем вставьте текст в удобный чат или e-mail.</span></div></form></div></section>
+        <BriefApplication />
 
         <section className="mx-auto max-w-[1440px] px-5 py-16 sm:px-8 sm:py-24 lg:px-12"><div className="grid gap-10 lg:grid-cols-[0.72fr_1.28fr]"><div><SectionLabel number="13">Коротко о важном</SectionLabel><h2 className="mt-7 font-display text-4xl font-extrabold leading-[1.03] tracking-[-0.065em] sm:text-5xl">Вопросы, которые стоит задать до старта.</h2></div><div className="border-t border-[#cfc8bc]">{faqs.map(([question, answer], index) => <div key={question} className="border-b border-[#cfc8bc]"><button className="flex w-full items-center justify-between gap-5 py-5 text-left" onClick={() => setOpenFaq(openFaq === index ? null : index)} aria-expanded={openFaq === index}><span className="font-display text-xl font-bold tracking-[-0.03em]">{question}</span><ChevronDown className={`h-5 w-5 shrink-0 text-[#075c70] transition-transform duration-200 ${openFaq === index ? "rotate-180" : ""}`} /></button>{openFaq === index && <p className="max-w-2xl pb-6 text-[15px] leading-7 text-[#59625e]">{answer}</p>}</div>)}</div></div></section>
       </main>
@@ -194,4 +180,3 @@ export default function Home() {
     </div>
   );
 }
-

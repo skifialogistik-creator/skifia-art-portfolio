@@ -1,48 +1,79 @@
 import { useReducedMotion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { type CSSProperties, useEffect, useRef, useState } from "react";
 
 const roboticHandVideo = "/manus-storage/robotic-hand_ef650d71.mp4";
 
-function isLightSurface(element: HTMLElement) {
-  let current: HTMLElement | null = element;
-  while (current) {
-    const rgb = getComputedStyle(current).backgroundColor.match(/\d+/g)?.map(Number);
-    const transparent = rgb && rgb.length === 4 && rgb[3] === 0;
-    if (rgb && rgb.length >= 3 && !transparent) return rgb[0] > 170 && rgb[1] > 170 && rgb[2] > 170;
-    current = current.parentElement;
-  }
-  return true;
-}
+const gestures = [
+  { label: "Собрать", note: "контур задачи", ratio: 0.12, angle: "-8deg", shift: "-6px", scale: "0.94" },
+  { label: "Открыть", note: "доступы и роли", ratio: 0.31, angle: "-3deg", shift: "3px", scale: "0.98" },
+  { label: "Настроить", note: "структура и сервисы", ratio: 0.52, angle: "2deg", shift: "0px", scale: "1" },
+  { label: "Проверить", note: "контроль перед запуском", ratio: 0.72, angle: "6deg", shift: "7px", scale: "1.02" },
+  { label: "Передать", note: "пакет владельца", ratio: 0.91, angle: "10deg", shift: "10px", scale: "1.04" },
+] as const;
 
-/** A low-contrast, edge-mounted hand used as a recurring visual signature. */
+/** Recurring edge-mounted hand with a distinct, stage-specific pose. */
 export default function RoboticHandMotif() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [active, setActive] = useState(false);
+  const [gestureIndex, setGestureIndex] = useState(0);
   const reduceMotion = useReducedMotion();
+  const gesture = gestures[gestureIndex];
 
   useEffect(() => {
-    const sections = Array.from(document.querySelectorAll<HTMLElement>("main > section")).filter((section) => section.id !== "hand-scene" && isLightSurface(section));
-    const visible = new Set<HTMLElement>();
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        const section = entry.target as HTMLElement;
-        if (entry.isIntersecting) visible.add(section);
-        else visible.delete(section);
-      });
-      setActive(visible.size > 0);
-    }, { threshold: 0.22 });
-    sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
+    const allSections = Array.from(document.querySelectorAll<HTMLElement>("main > section"));
+    const nonGestureSections = new Set(["top", "hand-scene", "control-story", "services"]);
+    const gestureSections = allSections.filter((section) => !nonGestureSections.has(section.id));
+    let scheduled = false;
+    const updateStage = () => {
+      scheduled = false;
+      const center = window.innerHeight * 0.5;
+      const current = allSections.reduce<HTMLElement | null>((closest, section) => {
+        if (!closest) return section;
+        const sectionRect = section.getBoundingClientRect();
+        const closestRect = closest.getBoundingClientRect();
+        const sectionDistance = Math.abs((sectionRect.top + sectionRect.bottom) / 2 - center);
+        const closestDistance = Math.abs((closestRect.top + closestRect.bottom) / 2 - center);
+        return sectionDistance < closestDistance ? section : closest;
+      }, null);
+      const stageIndex = current ? gestureSections.indexOf(current) : -1;
+      setActive(stageIndex >= 0);
+      if (stageIndex >= 0) setGestureIndex(stageIndex % gestures.length);
+    };
+    const onScrollOrResize = () => {
+      if (!scheduled) { scheduled = true; window.requestAnimationFrame(updateStage); }
+    };
+    updateStage();
+    window.addEventListener("scroll", onScrollOrResize, { passive: true });
+    window.addEventListener("resize", onScrollOrResize);
+    return () => { window.removeEventListener("scroll", onScrollOrResize); window.removeEventListener("resize", onScrollOrResize); };
   }, []);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
     video.muted = true;
-    video.loop = true;
-    if (active && !reduceMotion) void video.play().catch(() => undefined);
-    else video.pause();
-  }, [active, reduceMotion]);
+    video.loop = false;
+    if (!active) { video.pause(); return; }
+    let pauseTimer: number | undefined;
+    const setGestureFrame = () => {
+      video.currentTime = video.duration * gesture.ratio;
+      if (reduceMotion) { video.pause(); return; }
+      void video.play().catch(() => undefined);
+      pauseTimer = window.setTimeout(() => video.pause(), 460);
+    };
+    if (Number.isFinite(video.duration)) setGestureFrame();
+    else {
+      video.addEventListener("loadedmetadata", setGestureFrame, { once: true });
+      video.load();
+    }
+    return () => { if (pauseTimer) window.clearTimeout(pauseTimer); video.removeEventListener("loadedmetadata", setGestureFrame); };
+  }, [active, gesture.ratio, reduceMotion]);
 
-  return <video ref={videoRef} src={roboticHandVideo} muted loop playsInline preload="none" aria-hidden="true" className={`hand-motif ${active ? "hand-motif-active" : ""}`} />;
+  const motifStyle = {
+    "--hand-angle": gesture.angle,
+    "--hand-shift": gesture.shift,
+    "--hand-scale": gesture.scale,
+  } as CSSProperties;
+
+  return <><video ref={videoRef} src={roboticHandVideo} muted playsInline preload="none" aria-hidden="true" style={motifStyle} className={`hand-motif hand-gesture-${gestureIndex} ${active ? "hand-motif-active" : ""}`} /><div aria-hidden="true" className={`hand-gesture-label ${active ? "hand-gesture-label-active" : ""}`}><span>{String(gestureIndex + 1).padStart(2, "0")}</span><div><strong>{gesture.label}</strong><small>{gesture.note}</small></div></div></>;
 }

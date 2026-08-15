@@ -2,7 +2,6 @@
  * Design: «Владение без тревоги». Расширенный бриф оформлен как спокойное досье:
  * одна понятная задача за шаг, видимый прогресс и итоговый документ для клиента.
  */
-import { jsPDF } from "jspdf";
 import { Check, CheckCircle2, ChevronLeft, ChevronRight, Download, FileText, Loader2, Send, ShieldCheck } from "lucide-react";
 import { useMemo, useState } from "react";
 import { trpc } from "@/lib/trpc";
@@ -80,6 +79,7 @@ function arrayBufferToBase64(buffer: ArrayBuffer) {
 }
 
 async function downloadBriefPdf(data: BriefFormData, publicId: string) {
+  const { jsPDF } = await import("jspdf");
   const fontResponse = await fetch(pdfFontUrl);
   if (!fontResponse.ok) throw new Error("Не удалось подготовить шрифт для PDF.");
   const fontBase64 = arrayBufferToBase64(await fontResponse.arrayBuffer());

@@ -103,6 +103,58 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   to { transform: scaleY(1); transform-origin: top; }
 }
 
+@keyframes hero-cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes scan-drift {
+  from { background-position: 0 0; }
+  to { background-position: 0 16px; }
+}
+
+.hero-cursor {
+  display: inline-block;
+  width: 0.05em;
+  height: 0.82em;
+  margin-left: 0.08em;
+  vertical-align: -0.04em;
+  background: #a8e1dc;
+  transition: opacity 180ms ease-out;
+  animation: hero-cursor-blink 1s step-end infinite;
+}
+
+.interactive-scanlines {
+  background-image: repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(227,255,251,0.33) 4px);
+  background-size: 100% 16px;
+  animation: scan-drift 1.8s linear infinite;
+}
+
+.interactive-card {
+  transition: transform 220ms cubic-bezier(0.23, 1, 0.32, 1), background-color 220ms ease-out, box-shadow 220ms ease-out;
+}
+
+.interactive-step {
+  transition: transform 220ms cubic-bezier(0.23, 1, 0.32, 1), color 180ms ease-out;
+}
+
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 650ms cubic-bezier(0.23, 1, 0.32, 1), transform 650ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.scroll-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .interactive-card:hover { transform: translateY(-5px) rotate(-0.25deg); box-shadow: 8px 10px 0 rgba(7, 92, 112, 0.12); }
+  .interactive-step:hover { transform: translateX(8px); }
+  .interactive-step:hover > div:first-child { background: #075c70; color: #fcfaf5; }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .reveal { animation: reveal-up 600ms cubic-bezier(0.23, 1, 0.32, 1) both; }
   .reveal-d1 { animation-delay: 90ms; }
@@ -112,4 +164,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .interactive-scanlines { display: none; }
+  .scroll-reveal { opacity: 1; transform: none; }
 }

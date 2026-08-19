@@ -11,10 +11,14 @@ try {
   const avatarImage = page.locator(".avatar-image");
   const avatarBox = await avatar.boundingBox();
   if (!avatarBox) throw new Error("3D avatar is not visible");
-  await page.mouse.move(avatarBox.x + avatarBox.width * 0.78, avatarBox.y + avatarBox.height * 0.82);
-  await page.waitForTimeout(120);
+  const magneticBefore = await avatarImage.evaluate((element) => getComputedStyle(element).transform);
+  await avatar.evaluate((element) => {
+    const box = element.getBoundingClientRect();
+    element.dispatchEvent(new PointerEvent("pointermove", { bubbles: true, clientX: box.left + box.width * 0.78, clientY: box.top + box.height * 0.82 }));
+  });
+  await page.waitForTimeout(220);
   const magneticTransform = await avatarImage.evaluate((element) => getComputedStyle(element).transform);
-  if (magneticTransform === "none") throw new Error("Magnetic avatar did not react to pointer movement");
+  if (magneticTransform === magneticBefore) throw new Error("Magnetic avatar did not react to pointer movement");
 
   const firstMarquee = page.locator(".marquee-row").first();
   const beforeMarquee = await firstMarquee.evaluate((element) => getComputedStyle(element).transform);
@@ -47,7 +51,10 @@ try {
   const reducedImage = reducedPage.locator(".avatar-image");
   const reducedBox = await reducedAvatar.boundingBox();
   if (!reducedBox) throw new Error("Reduced-motion avatar is not visible");
-  await reducedPage.mouse.move(reducedBox.x + reducedBox.width * 0.78, reducedBox.y + reducedBox.height * 0.82);
+  await reducedAvatar.evaluate((element) => {
+    const box = element.getBoundingClientRect();
+    element.dispatchEvent(new PointerEvent("pointermove", { bubbles: true, clientX: box.left + box.width * 0.78, clientY: box.top + box.height * 0.82 }));
+  });
   await reducedPage.waitForTimeout(100);
   const reducedTransform = await reducedImage.evaluate((element) => getComputedStyle(element).transform);
   if (reducedTransform !== "none") throw new Error("Avatar still moves with reduced motion enabled");

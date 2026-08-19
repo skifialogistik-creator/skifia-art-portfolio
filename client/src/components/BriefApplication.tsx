@@ -6,7 +6,7 @@ import { Check, CheckCircle2, ChevronLeft, ChevronRight, Download, Loader2, Send
 import { useMemo, useState } from "react";
 import { trpc } from "@/lib/trpc";
 
-const pdfFontUrl = "/manus-storage/NotoSans-Regular_7d1593bf.ttf";
+const pdfFontUrl = "/manus-storage/NotoSans-Regular_f2352b28.ttf";
 const fieldClassName = "mt-2 w-full border-b border-[#6a4a8c] bg-transparent px-0 py-3 text-lg text-[#fff7ff] outline-none caret-[#ff68df] placeholder:text-[#9a83b3] focus:border-[#ff68df]";
 
 const goalOptions = ["Получать больше заявок", "Объяснить услуги и цены", "Показать экспертность", "Увеличить доверие", "Продавать онлайн", "Упростить запись / бронь"];

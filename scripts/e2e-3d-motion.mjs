@@ -42,7 +42,23 @@ try {
   const liftAfter = await firstSticky.evaluate((element) => getComputedStyle(element).transform);
   if (shadowBefore === shadowAfter) throw new Error("Project card glow did not appear on hover");
   if (liftBefore === liftAfter) throw new Error("Project card did not lift on hover");
+  const services = page.locator(".services-showcase");
+  await services.scrollIntoViewIfNeeded();
+  const servicesVideo = services.locator("video");
+  await page.waitForTimeout(600);
+  const videoState = await servicesVideo.evaluate((video) => ({ playing: !video.paused, time: video.currentTime, source: video.querySelector("source")?.getAttribute("src") }));
+  if (!videoState.playing || videoState.time <= 0 || !videoState.source?.includes("chrome-kinetic-reference")) throw new Error("Services video background is not playing");
   await desktop.close();
+
+  const mobile = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const mobilePage = await mobile.newPage();
+  await mobilePage.goto("http://127.0.0.1:3000/", { waitUntil: "networkidle" });
+  const mobileServices = mobilePage.locator(".services-showcase");
+  await mobileServices.scrollIntoViewIfNeeded();
+  const mobileServicesBox = await mobileServices.boundingBox();
+  const mobileWords = await mobileServices.locator(".services-word").count();
+  if (!mobileServicesBox || mobileServicesBox.width < 360 || mobileWords !== 3) throw new Error("Services scene is not readable on mobile");
+  await mobile.close();
 
   const reduced = await browser.newContext({ viewport: { width: 1280, height: 720 }, reducedMotion: "reduce" });
   const reducedPage = await reduced.newPage();
@@ -68,7 +84,7 @@ try {
   if (beforeReducedMarquee !== afterReducedMarquee) throw new Error("Marquee still moves with reduced motion enabled");
   await reduced.close();
 
-  console.log(JSON.stringify({ magneticTransform, marqueeMoved: beforeMarquee !== afterMarquee, stickyY: stickyBox.y, projectGlow: shadowBefore !== shadowAfter, projectLift: liftBefore !== liftAfter, reducedMotion: true }));
+  console.log(JSON.stringify({ magneticTransform, marqueeMoved: beforeMarquee !== afterMarquee, stickyY: stickyBox.y, projectGlow: shadowBefore !== shadowAfter, projectLift: liftBefore !== liftAfter, servicesVideoPlaying: videoState.playing, mobileServicesWords: mobileWords, reducedMotion: true }));
 } finally {
   await browser.close();
 }

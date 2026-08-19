@@ -29,6 +29,15 @@ try {
   await page.waitForTimeout(120);
   const stickyBox = await firstSticky.boundingBox();
   if (!stickyBox || stickyBox.y > 150) throw new Error("Project card is not sticky in the viewport");
+  const projectSheet = firstSticky.locator(".project-sheet");
+  const shadowBefore = await projectSheet.evaluate((element) => getComputedStyle(element).boxShadow);
+  const liftBefore = await firstSticky.evaluate((element) => getComputedStyle(element).transform);
+  await projectSheet.hover();
+  await page.waitForTimeout(520);
+  const shadowAfter = await projectSheet.evaluate((element) => getComputedStyle(element).boxShadow);
+  const liftAfter = await firstSticky.evaluate((element) => getComputedStyle(element).transform);
+  if (shadowBefore === shadowAfter) throw new Error("Project card glow did not appear on hover");
+  if (liftBefore === liftAfter) throw new Error("Project card did not lift on hover");
   await desktop.close();
 
   const reduced = await browser.newContext({ viewport: { width: 1280, height: 720 }, reducedMotion: "reduce" });
@@ -52,7 +61,7 @@ try {
   if (beforeReducedMarquee !== afterReducedMarquee) throw new Error("Marquee still moves with reduced motion enabled");
   await reduced.close();
 
-  console.log(JSON.stringify({ magneticTransform, marqueeMoved: beforeMarquee !== afterMarquee, stickyY: stickyBox.y, reducedMotion: true }));
+  console.log(JSON.stringify({ magneticTransform, marqueeMoved: beforeMarquee !== afterMarquee, stickyY: stickyBox.y, projectGlow: shadowBefore !== shadowAfter, projectLift: liftBefore !== liftAfter, reducedMotion: true }));
 } finally {
   await browser.close();
 }

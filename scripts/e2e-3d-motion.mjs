@@ -48,6 +48,19 @@ try {
   await page.waitForTimeout(600);
   const videoState = await servicesVideo.evaluate((video) => ({ playing: !video.paused, time: video.currentTime, source: video.querySelector("source")?.getAttribute("src") }));
   if (!videoState.playing || videoState.time <= 0 || !videoState.source?.includes("chrome-kinetic-reference")) throw new Error("Services video background is not playing");
+  const about = page.locator(".about-portrait");
+  await about.scrollIntoViewIfNeeded();
+  const aboutVideo = about.locator("video");
+  await page.waitForTimeout(600);
+  const aboutVideoState = await aboutVideo.evaluate((video) => ({ playing: !video.paused, time: video.currentTime, source: video.querySelector("source")?.getAttribute("src"), clip: getComputedStyle(video).clipPath, width: video.getBoundingClientRect().width, height: video.getBoundingClientRect().height }));
+  const revealIsOpen = !aboutVideoState.clip.includes("100%");
+  if (!aboutVideoState.source?.includes("sliding-portrait-reference") || !revealIsOpen || aboutVideoState.width < 1000 || aboutVideoState.height < 500) throw new Error("About portrait video is not clearly rendered");
+  const aboutCta = about.locator(".about-portrait-cta");
+  const servicesCta = services.locator(".services-primary-cta");
+  const aboutCtaBox = await aboutCta.boundingBox();
+  await services.scrollIntoViewIfNeeded();
+  const servicesCtaBox = await servicesCta.boundingBox();
+  if (!aboutCtaBox || !servicesCtaBox || aboutCtaBox.width < 100 || servicesCtaBox.width < 100) throw new Error("Primary CTAs are not sufficiently visible");
   await desktop.close();
 
   const mobile = await browser.newContext({ viewport: { width: 390, height: 844 } });
@@ -57,7 +70,12 @@ try {
   await mobileServices.scrollIntoViewIfNeeded();
   const mobileServicesBox = await mobileServices.boundingBox();
   const mobileWords = await mobileServices.locator(".services-word").count();
-  if (!mobileServicesBox || mobileServicesBox.width < 360 || mobileWords !== 3) throw new Error("Services scene is not readable on mobile");
+  const mobileAbout = mobilePage.locator(".about-portrait");
+  await mobileAbout.scrollIntoViewIfNeeded();
+  const mobileAboutVideo = mobileAbout.locator("video");
+  const mobileAboutCta = mobileAbout.locator(".about-portrait-cta");
+  const mobileCtaBox = await mobileAboutCta.boundingBox();
+  if (!mobileServicesBox || mobileServicesBox.width < 360 || mobileWords !== 3 || await mobileAboutVideo.count() !== 1 || !mobileCtaBox || mobileCtaBox.width < 100) throw new Error("Services or about scene is not readable on mobile");
   await mobile.close();
 
   const reduced = await browser.newContext({ viewport: { width: 1280, height: 720 }, reducedMotion: "reduce" });
@@ -84,7 +102,7 @@ try {
   if (beforeReducedMarquee !== afterReducedMarquee) throw new Error("Marquee still moves with reduced motion enabled");
   await reduced.close();
 
-  console.log(JSON.stringify({ magneticTransform, marqueeMoved: beforeMarquee !== afterMarquee, stickyY: stickyBox.y, projectGlow: shadowBefore !== shadowAfter, projectLift: liftBefore !== liftAfter, servicesVideoPlaying: videoState.playing, mobileServicesWords: mobileWords, reducedMotion: true }));
+  console.log(JSON.stringify({ magneticTransform, marqueeMoved: beforeMarquee !== afterMarquee, stickyY: stickyBox.y, projectGlow: shadowBefore !== shadowAfter, projectLift: liftBefore !== liftAfter, servicesVideoPlaying: videoState.playing, aboutVideoPlaying: aboutVideoState.playing, mobileServicesWords: mobileWords, reducedMotion: true }));
 } finally {
   await browser.close();
 }

@@ -44,3 +44,16 @@ export const processSteps = [
   ["03", "Сборка", "Дизайн и разработка идут короткими понятными этапами с точками согласования."],
   ["04", "Запуск", "Проверяем адаптивность, формы и детали, затем передаём сайт в ваши руки."],
 ] as const;
+
+export const creatorPreviewLabels = [
+  "web / signal",
+  "launch / studio",
+  "digital / story",
+  "brand / frame",
+  "motion / page",
+  "form / future",
+  "noir / system",
+  "type / energy",
+  "focus / web",
+  "new / era",
+] as const;

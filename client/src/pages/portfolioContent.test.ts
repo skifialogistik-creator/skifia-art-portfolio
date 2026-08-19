@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { offerCards, portfolioWorks, processSteps } from "./portfolioContent";
+import { creatorPreviewLabels, offerCards, portfolioWorks, processSteps } from "./portfolioContent";
 
 describe("portfolio content", () => {
   it("keeps the homepage portfolio ready for three real project links", () => {
@@ -11,5 +11,10 @@ describe("portfolio content", () => {
   it("describes a complete service and delivery journey", () => {
     expect(offerCards).toHaveLength(4);
     expect(processSteps.map(([number]) => number)).toEqual(["01", "02", "03", "04"]);
+  });
+
+  it("provides a balanced set of animated 3D gallery labels", () => {
+    expect(creatorPreviewLabels).toHaveLength(10);
+    expect(new Set(creatorPreviewLabels).size).toBe(creatorPreviewLabels.length);
   });
 });

@@ -1,101 +1,77 @@
 import BriefApplication from "@/components/BriefApplication";
-import {
-  ArrowDownRight,
-  ArrowUpRight,
-  Check,
-  CircleArrowDown,
-  Code2,
-  ExternalLink,
-  Layers3,
-  Menu,
-  MoveUpRight,
-  Sparkles,
-  X,
-} from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, ChevronDown, ExternalLink, Menu, Sparkles, X } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
-import { useState } from "react";
-import { offerCards, portfolioWorks, processSteps } from "./portfolioContent";
+import { useEffect, useRef, useState } from "react";
+import { creatorPreviewLabels, portfolioWorks } from "./portfolioContent";
 
-const animation = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0 },
-};
-
-function SectionEyebrow({ index, children }: { index: string; children: React.ReactNode }) {
-  return (
-    <div className="flex items-center gap-3 font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-[#d7c9ff]">
-      <span className="grid h-7 w-7 place-items-center rounded-full border border-[#8b65de] bg-[#1b1230] text-[9px] text-[#f5efff]">{index}</span>
-      <span>{children}</span>
-    </div>
-  );
+function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
+  const reduced = useReducedMotion();
+  return <motion.div initial={reduced ? false : { opacity: 0, y: 28 }} whileInView={reduced ? undefined : { opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.16 }} transition={{ duration: 0.72, delay, ease: [0.25, 0.1, 0.25, 1] }} className={className}>{children}</motion.div>;
 }
 
-function ProjectVisual({ variant }: { variant: "violet" | "lime" | "coral" }) {
-  return (
-    <div className={`project-visual project-visual--${variant}`} aria-hidden="true">
-      <div className="project-visual__window">
-        <div className="project-visual__bar"><span /><span /><span /></div>
-        <div className="project-visual__nav"><i /> <i /> <i /> <b /></div>
-        <div className="project-visual__hero"><div><em>new<br />signal</em><span /></div><aside><i /><i /><i /></aside></div>
-        <div className="project-visual__grid"><span /><span /><span /></div>
-      </div>
-      <span className="project-visual__stamp">WEB / {variant.toUpperCase()}</span>
-    </div>
-  );
+function MagneticAvatar() {
+  const reduced = useReducedMotion();
+  const imageRef = useRef<HTMLImageElement>(null);
+
+  const move = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (reduced || !imageRef.current) return;
+    const box = event.currentTarget.getBoundingClientRect();
+    const x = ((event.clientX - box.left) / box.width - 0.5) * 22;
+    const y = ((event.clientY - box.top) / box.height - 0.5) * 22;
+    imageRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${x * 0.08}deg)`;
+  };
+
+  const reset = () => { if (imageRef.current) imageRef.current.style.transform = "translate3d(0, 0, 0) rotate(0deg)"; };
+
+  return <div onPointerMove={move} onPointerLeave={reset} className="avatar-stage absolute bottom-0 left-1/2 z-10 h-[69%] w-[min(72vw,570px)] -translate-x-1/2 sm:h-[75%] sm:w-[min(60vw,640px)]" aria-label="Интерактивный 3D-объект"><img ref={imageRef} src="/manus-storage/creator-avatar_e02226c5.webp" alt="Стилизованный 3D-портрет создателя сайта" className="avatar-image h-full w-full object-contain object-bottom" /></div>;
+}
+
+function AnimatedText({ text }: { text: string }) {
+  return <p className="about-reveal mx-auto max-w-2xl text-center text-[clamp(1.08rem,2vw,1.45rem)] font-medium leading-relaxed text-[#d7e2ea]">{Array.from(text).map((character, index) => <motion.span key={`${character}-${index}`} initial={{ opacity: 0.22 }} whileInView={{ opacity: 1 }} viewport={{ once: true, amount: 0.4 }} transition={{ duration: 0.35, delay: Math.min(index * 0.012, 0.6) }}>{character}</motion.span>)}</p>;
+}
+
+function ProjectStackCard({ index, work }: { index: number; work: (typeof portfolioWorks)[number] }) {
+  const targetScale = 1 - (portfolioWorks.length - 1 - index) * 0.035;
+  return <div className="project-sticky h-[78vh] sm:h-[84vh]" style={{ top: `${96 + index * 28}px` }}><motion.article initial={{ opacity: 0, y: 34 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.24 }} transition={{ duration: 0.65, ease: [0.25, 0.1, 0.25, 1] }} className="project-sheet h-full" style={{ scale: targetScale }}><div className="flex flex-wrap items-start justify-between gap-4"><div className="flex min-w-0 items-center gap-4 sm:gap-7"><span className="font-display text-[clamp(3rem,8vw,7rem)] font-black leading-none tracking-[-0.1em] text-[#d7e2ea]">{work.number}</span><div><p className="font-mono text-[10px] uppercase tracking-[0.17em] text-[#9faab4]">{work.category}</p><h3 className="mt-2 font-display text-2xl font-black uppercase tracking-[-0.07em] text-white sm:text-4xl">{work.name}</h3></div></div>{work.url ? <a href={work.url} target="_blank" rel="noreferrer" className="live-button">Открыть сайт <ExternalLink className="h-4 w-4" /></a> : <span className="live-button live-button--muted">Ссылка появится <ArrowUpRight className="h-4 w-4" /></span>}</div><div className={`project-art project-art--${work.visual} mt-5 grid h-[calc(100%-130px)] grid-cols-[.7fr_1fr] gap-3 sm:mt-8`}><div className="grid grid-rows-2 gap-3"><div className="project-art__tile project-art__tile--a"><span>{work.number}</span><b>visual<br />direction</b></div><div className="project-art__tile project-art__tile--b"><i /><i /><i /></div></div><div className="project-art__tile project-art__tile--hero"><em>future<br />on<br />screen</em><span className="project-art__orb" /><small>case / {String(index + 1).padStart(2, "0")}</small></div></div></motion.article></div>;
 }
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const reduceMotion = useReducedMotion();
-  const visible = reduceMotion ? { opacity: 1, y: 0 } : undefined;
+  const [marqueeOffset, setMarqueeOffset] = useState(0);
+  const marqueeRef = useRef<HTMLElement>(null);
+  const reduced = useReducedMotion();
 
-  return (
-    <div className="portfolio-shell min-h-screen overflow-hidden bg-[#0d0b12] text-[#fbf9ff]">
-      <header className="portfolio-header sticky top-0 z-50 border-b border-white/10 bg-[#0d0b12]/82 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-4 sm:px-8 lg:px-12">
-          <a href="#top" className="flex items-center gap-3" aria-label="На главную">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-[#a87cff] font-display text-sm font-black text-[#120c1e]">S</span>
-            <span className="font-display text-[13px] font-bold uppercase tracking-[-0.06em]">site<br />maker</span>
-          </a>
-          <nav className="hidden items-center gap-7 font-mono text-[10px] uppercase tracking-[0.16em] text-[#c8c0d6] lg:flex">
-            <a className="transition-colors hover:text-white" href="#works">Работы</a>
-            <a className="transition-colors hover:text-white" href="#approach">Подход</a>
-            <a className="transition-colors hover:text-white" href="#process">Процесс</a>
-          </nav>
-          <a href="#brief" className="hidden items-center gap-2 rounded-full bg-[#f3eeff] px-5 py-3 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#140d21] transition-transform duration-200 hover:-translate-y-0.5 active:scale-[0.97] sm:inline-flex">Заполнить бриф <ArrowDownRight className="h-4 w-4" /></a>
-          <button type="button" onClick={() => setMenuOpen((state) => !state)} className="grid h-10 w-10 place-items-center rounded-full border border-white/20 text-white lg:hidden" aria-expanded={menuOpen} aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"}>{menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}</button>
-        </div>
-        {menuOpen && <nav className="border-t border-white/10 bg-[#15111d] px-5 py-5 font-mono text-xs uppercase tracking-[0.14em] sm:px-8 lg:hidden"><div className="mx-auto flex max-w-[1440px] flex-col gap-4"><a href="#works" onClick={() => setMenuOpen(false)}>Работы</a><a href="#approach" onClick={() => setMenuOpen(false)}>Подход</a><a href="#process" onClick={() => setMenuOpen(false)}>Процесс</a><a href="#brief" onClick={() => setMenuOpen(false)} className="text-[#caaaFF]">Заполнить бриф →</a></div></nav>}
-      </header>
+  useEffect(() => {
+    if (reduced) return;
+    const onScroll = () => {
+      if (!marqueeRef.current) return;
+      const top = marqueeRef.current.getBoundingClientRect().top + window.scrollY;
+      setMarqueeOffset((window.scrollY - top + window.innerHeight) * 0.16);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [reduced]);
 
-      <main>
-        <section id="top" className="relative isolate min-h-[calc(100svh-73px)] overflow-hidden px-5 pb-12 pt-9 sm:px-8 sm:pb-16 sm:pt-12 lg:px-12 lg:pt-16">
-          <div className="hero-grid pointer-events-none absolute inset-0 -z-10 opacity-60" />
-          <div className="orbital-stage pointer-events-none absolute -right-24 top-12 -z-10 h-[450px] w-[450px] sm:right-[4%] sm:top-3 sm:h-[640px] sm:w-[640px]"><span /><i /><b /></div>
-          <motion.div initial={reduceMotion ? false : "hidden"} animate={visible ?? "show"} variants={animation} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }} className="mx-auto flex min-h-[calc(100svh-160px)] max-w-[1440px] flex-col justify-between">
-            <div className="grid gap-8 lg:grid-cols-[1.05fr_.95fr] lg:gap-16">
-              <div className="pt-4 lg:pt-10"><p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#cbbdff]">Дизайн + разработка / от идеи до запуска</p><h1 className="mt-8 max-w-5xl font-display text-[clamp(3.25rem,10.4vw,10.6rem)] font-black uppercase leading-[.82] tracking-[-0.11em]">Сайты,<br /><span className="text-gradient">которые</span><br />звучат.</h1></div>
-              <div className="hero-panel mt-2 self-end rounded-[2rem] border border-white/13 bg-[#181422]/65 p-5 backdrop-blur-sm sm:mt-24 sm:max-w-[465px] sm:p-7 lg:mb-2"><Sparkles className="h-5 w-5 text-[#b590ff]" /><p className="mt-10 max-w-sm text-lg font-medium leading-7 text-[#e4ddf4]">Создаю характерные сайты для тех, кому важно не просто «быть в интернете», а остаться в памяти.</p><a href="#brief" className="mt-8 inline-flex items-center gap-3 font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-white transition-colors hover:text-[#bc9bff]">Обсудить проект <MoveUpRight className="h-4 w-4" /></a></div>
-            </div>
-            <div className="mt-12 flex flex-col gap-8 border-t border-white/15 pt-5 sm:mt-20 sm:flex-row sm:items-end sm:justify-between"><div className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.15em] text-[#beb5cc]"><CircleArrowDown className="h-4 w-4" /> Листайте — здесь есть маршрут</div><div className="flex gap-8 font-mono text-[10px] uppercase tracking-[0.15em] text-[#b7adc6]"><span>Стратегия</span><span>Дизайн</span><span>Код</span></div></div>
-          </motion.div>
-        </section>
+  return <div className="creator-shell min-h-screen overflow-x-clip bg-[#0c0c0c] text-[#d7e2ea]">
+    <header className="creator-nav absolute inset-x-0 top-0 z-30"><div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 pt-6 sm:px-10 sm:pt-8"><a href="#top" className="font-display text-sm font-black uppercase tracking-[-0.06em] text-[#d7e2ea]">site<br />maker</a><nav className="hidden items-center gap-8 font-medium uppercase tracking-wider text-[#d7e2ea] sm:flex sm:text-sm lg:gap-12 lg:text-lg"><a href="#about" className="transition-opacity hover:opacity-70">Обо мне</a><a href="#services" className="transition-opacity hover:opacity-70">Услуги</a><a href="#projects" className="transition-opacity hover:opacity-70">Проекты</a><a href="#brief" className="transition-opacity hover:opacity-70">Контакт</a></nav><button type="button" onClick={() => setMenuOpen((value) => !value)} aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"} aria-expanded={menuOpen} className="grid h-10 w-10 place-items-center rounded-full border border-[#d7e2ea]/50 text-[#d7e2ea] sm:hidden">{menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}</button></div>{menuOpen && <nav className="mx-6 mt-4 flex flex-col gap-4 rounded-2xl border border-white/15 bg-[#161616]/95 p-5 font-mono text-xs uppercase tracking-[.14em] sm:hidden"><a href="#about" onClick={() => setMenuOpen(false)}>Обо мне</a><a href="#services" onClick={() => setMenuOpen(false)}>Услуги</a><a href="#projects" onClick={() => setMenuOpen(false)}>Проекты</a><a href="#brief" onClick={() => setMenuOpen(false)} className="text-[#f2b1ff]">Начать с брифа</a></nav>}</header>
 
-        <section className="overflow-hidden border-y border-white/10 bg-[#b18aff] py-3 text-[#120d19]"><div className="marquee-track flex w-max gap-8 whitespace-nowrap font-display text-xl font-black uppercase tracking-[-0.08em] sm:text-3xl"><span>ваш сайт / ваш голос / ваш сигнал / </span><span>ваш сайт / ваш голос / ваш сигнал / </span><span>ваш сайт / ваш голос / ваш сигнал / </span></div></section>
+    <main>
+      <section id="top" className="relative flex min-h-screen flex-col overflow-hidden"><div className="hero-noise pointer-events-none absolute inset-0" /><div className="hero-glow pointer-events-none absolute left-1/2 top-[38%] h-[42vw] w-[42vw] min-h-64 min-w-64 -translate-x-1/2 -translate-y-1/2 rounded-full" /><MagneticAvatar /><div className="relative z-20 mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-6 pt-28 sm:px-10 sm:pt-36"><FadeIn className="overflow-hidden" delay={0.12}><h1 className="hero-heading whitespace-nowrap font-display text-[14vw] font-black uppercase leading-[.8] tracking-[-0.12em] sm:text-[15vw] md:-mt-4 md:text-[16vw] lg:text-[17.5vw]">Привет,<br />я <span>создаю</span><br />сайты</h1></FadeIn><div className="mt-auto flex items-end justify-between gap-5 pb-7 sm:pb-10"><FadeIn delay={0.3} className="relative z-20 max-w-[160px] text-[clamp(.72rem,1.4vw,1.25rem)] font-light uppercase leading-snug tracking-wide text-[#d7e2ea] sm:max-w-[260px]">Дизайн и разработка сайтов, которые хочется рассматривать и открывать снова.</FadeIn><FadeIn delay={0.45} className="relative z-20"><a href="#brief" className="contact-button">Обсудить проект <ArrowDownRight className="h-4 w-4" /></a></FadeIn></div></div></section>
 
-        <section id="works" className="relative px-5 py-20 sm:px-8 sm:py-28 lg:px-12"><div className="mx-auto max-w-[1440px]"><div className="grid gap-8 border-b border-white/14 pb-10 lg:grid-cols-[.82fr_1.18fr] lg:items-end"><div><SectionEyebrow index="01">витрина работ</SectionEyebrow><h2 className="mt-7 font-display text-[clamp(2.8rem,6.7vw,6.8rem)] font-black uppercase leading-[.86] tracking-[-0.1em]">Живые<br />ссылки.</h2></div><p className="max-w-xl text-lg leading-8 text-[#c9c2d4]">Здесь будут ваши опубликованные работы. Каждая карточка уже подготовлена: пришлите ссылки, и я заменю названия и наполнение на реальные проекты — без вымышленных кейсов.</p></div>
-            <div className="mt-10 grid gap-5 lg:grid-cols-3">{portfolioWorks.map((work, index) => <motion.article key={work.number} initial={reduceMotion ? false : { opacity: 0, y: 28 }} whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.55, delay: index * 0.07, ease: [0.16, 1, 0.3, 1] }} className="portfolio-card group rounded-[2rem] border border-white/12 bg-[#17131f] p-4"><ProjectVisual variant={work.visual} /><div className="mt-6 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.15em] text-[#b9adce]"><span>{work.number} / {work.category}</span><Layers3 className="h-4 w-4" /></div><h3 className="mt-5 font-display text-2xl font-black uppercase leading-[.93] tracking-[-0.075em] text-white">{work.name}</h3><p className="mt-4 min-h-24 text-sm leading-6 text-[#bbb3c8]">{work.description}</p>{work.url ? <a href={work.url} target="_blank" rel="noreferrer" className="mt-7 inline-flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-white">Открыть сайт <ExternalLink className="h-4 w-4" /></a> : <span className="mt-7 inline-flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#987de0]">Ссылка будет добавлена <ArrowUpRight className="h-4 w-4" /></span>}</motion.article>)}</div></div></section>
+      <section ref={marqueeRef} className="marquee-section overflow-hidden bg-[#0c0c0c] pb-10 pt-24 sm:pt-32"><div className="marquee-row gap-3" style={{ transform: `translate3d(${marqueeOffset - 260}px, 0, 0)` }}>{[...creatorPreviewLabels, ...creatorPreviewLabels, ...creatorPreviewLabels].map((label, index) => <div key={`first-${index}`} className={`marquee-card marquee-card--${index % 5}`}><span>{label}</span><b>{String(index + 1).padStart(2, "0")}</b><i /></div>)}</div><div className="marquee-row mt-3 gap-3" style={{ transform: `translate3d(${-marqueeOffset + 80}px, 0, 0)` }}>{[...creatorPreviewLabels.slice().reverse(), ...creatorPreviewLabels.slice().reverse(), ...creatorPreviewLabels.slice().reverse()].map((label, index) => <div key={`second-${index}`} className={`marquee-card marquee-card--${(index + 2) % 5}`}><span>{label}</span><b>{String(index + 11).padStart(2, "0")}</b><i /></div>)}</div></section>
 
-        <section id="approach" className="relative overflow-hidden rounded-t-[3rem] bg-[#f2edfb] px-5 py-20 text-[#17111f] sm:px-8 sm:py-28 lg:px-12"><div className="light-grid pointer-events-none absolute inset-0 opacity-65" /><div className="relative mx-auto max-w-[1440px]"><div className="grid gap-9 lg:grid-cols-[.78fr_1.22fr] lg:items-end"><div><SectionEyebrow index="02">под ключ</SectionEyebrow><h2 className="mt-7 font-display text-[clamp(2.8rem,6.4vw,6.5rem)] font-black uppercase leading-[.86] tracking-[-0.1em]">Не только<br />красиво.</h2></div><p className="max-w-xl text-lg leading-8 text-[#4a4353]">Сильный визуал — только часть работы. Я помогаю собрать идею, структуру, тексты, интерфейс и техническую основу, чтобы после запуска сайт не оставался красивой пустой витриной.</p></div><div className="mt-14 grid border-l border-t border-[#c7bbd7] sm:grid-cols-2 lg:grid-cols-4">{offerCards.map(([title, text], index) => <article key={title} className="group min-h-64 border-b border-r border-[#c7bbd7] p-6 sm:p-7"><p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#7552bc]">0{index + 1}</p><h3 className="mt-12 font-display text-2xl font-black uppercase tracking-[-0.07em]">{title}</h3><p className="mt-4 text-sm leading-6 text-[#62596a]">{text}</p><ArrowDownRight className="mt-8 h-5 w-5 text-[#6f4db9] transition-transform duration-200 group-hover:translate-x-1 group-hover:translate-y-1" /></article>)}</div></div></section>
+      <section id="about" className="about-section relative grid min-h-screen place-items-center overflow-hidden px-5 py-24 sm:px-8"><div className="about-symbol about-symbol--moon">◔</div><div className="about-symbol about-symbol--cube">✦</div><div className="about-symbol about-symbol--lego">▦</div><div className="about-symbol about-symbol--orb">◌</div><div className="relative z-10 flex max-w-4xl flex-col items-center"><FadeIn><p className="font-mono text-[10px] uppercase tracking-[.18em] text-[#9da9b2]">Сайт под ключ / от замысла до запуска</p><h2 className="hero-heading mt-6 text-center font-display text-[clamp(3.2rem,11vw,9.8rem)] font-black uppercase leading-[.82] tracking-[-.11em]">Обо мне</h2></FadeIn><div className="mt-12 sm:mt-16"><AnimatedText text="Я превращаю идею в сайт с характером: собираю структуру, создаю сильный визуальный язык и довожу проект до уверенного запуска. Вам не нужно разбираться в технических деталях — на каждом этапе будет понятный результат и следующий шаг." /></div><a href="#brief" className="contact-button mt-14 sm:mt-20">Заполнить бриф <ArrowDownRight className="h-4 w-4" /></a></div></section>
 
-        <section id="process" className="bg-[#17111f] px-5 py-20 sm:px-8 sm:py-28 lg:px-12"><div className="mx-auto grid max-w-[1440px] gap-12 lg:grid-cols-[.72fr_1.28fr]"><div><SectionEyebrow index="03">как это работает</SectionEyebrow><h2 className="mt-7 font-display text-[clamp(2.8rem,5.7vw,5.8rem)] font-black uppercase leading-[.87] tracking-[-0.1em]">Без<br />хаоса.</h2><p className="mt-8 max-w-md text-lg leading-8 text-[#c5bdcf]">У проекта есть ясный ритм: сначала смыслы, потом система, дальше — реализация и запуск. Вы всегда понимаете, на каком мы этапе и что нужно от вас.</p><a href="#brief" className="mt-10 inline-flex rounded-full bg-[#b38bff] px-6 py-4 font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#160f22] transition-transform hover:-translate-y-0.5 active:scale-[0.97]">Перейти к брифу <ArrowDownRight className="ml-2 h-4 w-4" /></a></div><div className="relative"><span className="absolute bottom-9 left-[17px] top-9 w-px bg-[#6f5c83] sm:left-6" />{processSteps.map(([number, title, text], index) => <motion.article key={number} initial={reduceMotion ? false : { opacity: 0, x: 18 }} whileInView={reduceMotion ? undefined : { opacity: 1, x: 0 }} viewport={{ once: true, amount: 0.25 }} transition={{ duration: 0.5, delay: index * 0.07, ease: [0.16, 1, 0.3, 1] }} className="relative grid grid-cols-[35px_1fr] gap-6 border-b border-white/13 py-7 first:border-t sm:grid-cols-[52px_1fr] sm:gap-8"><span className="relative z-10 grid h-9 w-9 place-items-center rounded-full border border-[#a78af4] bg-[#17111f] font-mono text-[10px] text-[#d1c0ff] sm:h-12 sm:w-12">{number}</span><div><h3 className="font-display text-2xl font-black uppercase tracking-[-0.07em] text-white">{title}</h3><p className="mt-3 max-w-xl text-sm leading-6 text-[#beb6c9]">{text}</p></div></motion.article>)}</div></div></section>
+      <section id="services" className="services-section relative z-10 rounded-t-[42px] bg-white px-5 py-20 text-[#0c0c0c] sm:rounded-t-[60px] sm:px-8 sm:py-28"><div className="mx-auto max-w-6xl"><FadeIn><h2 className="text-center font-display text-[clamp(3.4rem,11vw,9.6rem)] font-black uppercase leading-[.82] tracking-[-.11em]">Услуги</h2></FadeIn><div className="mt-16 border-t border-black/15 sm:mt-24">{[["01", "Стратегия", "Разбираем задачу, аудиторию, сценарии пользователя и смысл первого впечатления от сайта."], ["02", "Дизайн", "Создаю выразительный визуальный язык, сетку, типографику и адаптивные экраны."], ["03", "Разработка", "Собираю быстрый сайт с анимациями, формами и нужными интеграциями."], ["04", "Запуск", "Подключаю домен, проверяю мобильную версию, базовое SEO и путь заявки."], ["05", "Передача", "Передаю исходники, доступы и понятную инструкцию по дальнейшему управлению."]].map(([number, title, text], index) => <FadeIn key={number} delay={index * 0.06}><article className="service-item grid gap-4 border-b border-black/15 py-8 sm:grid-cols-[minmax(90px,.23fr)_1fr] sm:gap-8 sm:py-11"><span className="font-display text-[clamp(3.2rem,8vw,7.2rem)] font-black leading-none tracking-[-.11em]">{number}</span><div className="pt-1"><h3 className="font-display text-[clamp(1.05rem,2.2vw,2rem)] font-black uppercase tracking-[-.06em]">{title}</h3><p className="mt-3 max-w-2xl text-[clamp(.9rem,1.6vw,1.2rem)] leading-relaxed text-black/60">{text}</p></div></article></FadeIn>)}</div></div></section>
 
-        <section className="relative overflow-hidden bg-[#b18aff] px-5 py-20 text-[#17111f] sm:px-8 sm:py-24 lg:px-12"><div className="cta-orbit pointer-events-none absolute right-[8%] top-1/2 h-72 w-72 -translate-y-1/2 rounded-full border-[28px] border-[#e1d7fa] opacity-70" /><div className="relative mx-auto flex max-w-[1440px] flex-col justify-between gap-10 lg:flex-row lg:items-end"><div><p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em]">Есть задача? Есть старт.</p><h2 className="mt-7 max-w-4xl font-display text-[clamp(3rem,6vw,6.3rem)] font-black uppercase leading-[.86] tracking-[-0.1em]">Давайте сделаем<br />сайт заметным.</h2></div><a href="#brief" className="inline-flex w-fit items-center gap-3 rounded-full bg-[#17111f] px-7 py-5 font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-white transition-transform hover:-translate-y-1 active:scale-[0.97]">Начать с брифа <ArrowDownRight className="h-4 w-4" /></a></div></section>
+      <section id="projects" className="projects-section relative z-20 -mt-10 rounded-t-[42px] bg-[#0c0c0c] px-5 pb-16 pt-24 sm:-mt-14 sm:rounded-t-[60px] sm:px-8 sm:pt-32"><div className="mx-auto max-w-6xl"><FadeIn><p className="font-mono text-[10px] uppercase tracking-[.18em] text-[#9da9b2]">Ваша коллекция опубликованных работ</p><h2 className="hero-heading mt-5 font-display text-[clamp(3.5rem,11vw,9.6rem)] font-black uppercase leading-[.82] tracking-[-.11em]">Проекты</h2></FadeIn><div className="mt-12">{portfolioWorks.map((work, index) => <ProjectStackCard key={work.number} index={index} work={work} />)}</div></div></section>
 
-        <BriefApplication />
-      </main>
+      <section className="closing-section relative overflow-hidden bg-[#0c0c0c] px-5 pb-24 pt-8 sm:px-8"><div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-8 border-t border-[#d7e2ea]/20 pt-9 sm:flex-row sm:items-end"><div><p className="font-mono text-[10px] uppercase tracking-[.18em] text-[#9da9b2]">Есть идея? Соберём её в рабочий сайт.</p><h2 className="mt-4 max-w-3xl font-display text-[clamp(2.8rem,7vw,6.4rem)] font-black uppercase leading-[.86] tracking-[-.1em] text-[#d7e2ea]">Пора сделать<br />что-то заметное.</h2></div><a href="#brief" className="contact-button shrink-0">Начать <ArrowDownRight className="h-4 w-4" /></a></div></section>
 
-      <footer className="border-t border-white/10 bg-[#0a090d] px-5 py-10 sm:px-8 lg:px-12"><div className="mx-auto flex max-w-[1440px] flex-col justify-between gap-6 sm:flex-row sm:items-end"><div><p className="font-display text-2xl font-black uppercase tracking-[-0.08em]">site maker</p><p className="mt-2 max-w-sm text-sm leading-6 text-[#aaa0b6]">Дизайн, разработка и запуск современных сайтов с характером.</p></div><div className="font-mono text-[10px] uppercase tracking-[0.15em] text-[#8d829a]">© {new Date().getFullYear()} / digital work</div></div></footer>
-    </div>
-  );
+      <BriefApplication />
+    </main>
+
+    <footer className="border-t border-[#d7e2ea]/10 bg-[#0c0c0c] px-6 py-9 sm:px-10"><div className="mx-auto flex max-w-[1600px] items-end justify-between gap-4"><p className="font-display text-sm font-black uppercase tracking-[-.06em] text-[#d7e2ea]">site<br />maker</p><p className="font-mono text-[9px] uppercase tracking-[.14em] text-[#8c969e]">© {new Date().getFullYear()} / web direction</p></div></footer>
+  </div>;
 }

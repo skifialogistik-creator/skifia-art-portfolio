@@ -61,15 +61,23 @@ try {
   await services.scrollIntoViewIfNeeded();
   const servicesCtaBox = await servicesCta.boundingBox();
   const servicesCtaHref = await servicesCta.getAttribute("href");
-  const serviceCaptions = services.locator(".services-caption");
+  const serviceCaptions = services.locator(".services-annotation__item");
   const firstCaptionFontSize = await serviceCaptions.first().evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
-  if (!aboutCtaBox || !servicesCtaBox || aboutCtaBox.width < 100 || servicesCtaBox.width < 100 || servicesCtaHref !== "https://t.me/Tristan_81" || await serviceCaptions.count() !== 2 || firstCaptionFontSize < 14) throw new Error("Primary CTAs or service captions are not sufficiently visible");
+  const servicesAnnotationBox = await services.locator(".services-annotation").boundingBox();
+  await page.waitForTimeout(900);
+  await page.screenshot({ path: "/home/ubuntu/desktop-services-annotation-check.png", fullPage: false });
+  if (!aboutCtaBox || !servicesCtaBox || !servicesAnnotationBox || servicesAnnotationBox.width < 300 || servicesAnnotationBox.height < 100 || aboutCtaBox.width < 100 || servicesCtaBox.width < 100 || servicesCtaHref !== "https://t.me/Tristan_81" || await serviceCaptions.count() !== 2 || firstCaptionFontSize < 14) throw new Error("Primary CTAs or service captions are not sufficiently visible");
   await desktop.close();
 
   const mobile = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const mobilePage = await mobile.newPage();
   await mobilePage.goto("http://127.0.0.1:3000/", { waitUntil: "networkidle" });
   const mobileServices = mobilePage.locator(".services-showcase");
+  const mobileHeroSidecar = mobilePage.locator(".hero-sidecar");
+  const mobileAvatar = mobilePage.locator(".avatar-stage");
+  const mobileHeroSidecarBox = await mobileHeroSidecar.boundingBox();
+  const mobileAvatarBox = await mobileAvatar.boundingBox();
+  const heroTextIsAbovePortrait = !!mobileHeroSidecarBox && !!mobileAvatarBox && mobileHeroSidecarBox.y + mobileHeroSidecarBox.height + 18 <= mobileAvatarBox.y;
   await mobileServices.scrollIntoViewIfNeeded();
   const mobileServicesBox = await mobileServices.boundingBox();
   const mobileWords = await mobileServices.locator(".services-word").count();
@@ -81,12 +89,12 @@ try {
   await mobileServices.scrollIntoViewIfNeeded();
   const mobileServicesCta = mobileServices.locator(".services-primary-cta");
   const mobileServicesCtaBox = await mobileServicesCta.boundingBox();
-  const mobileCaptions = mobileServices.locator(".services-caption");
+  const mobileCaptions = mobileServices.locator(".services-annotation__item");
   const mobileCaptionBoxes = await Promise.all([0, 1].map((index) => mobileCaptions.nth(index).boundingBox()));
   const mobileCaptionFontSize = await mobileCaptions.first().evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
   await mobilePage.waitForTimeout(1200);
   await mobilePage.screenshot({ path: "/home/ubuntu/mobile-services-caption-check.png", fullPage: false });
-  if (!mobileServicesBox || mobileServicesBox.width < 360 || mobileWords !== 3 || await mobileAboutVideo.count() !== 1 || !mobileCtaBox || mobileCtaBox.width < 100 || !mobileServicesCtaBox || mobileServicesCtaBox.width < 100 || await mobileServicesCta.getAttribute("href") !== "https://t.me/Tristan_81" || await mobileCaptions.count() !== 2 || mobileCaptionBoxes.some((box) => !box || box.width < 130 || box.height < 50) || mobileCaptionFontSize < 13) throw new Error("Services or about scene is not readable on mobile");
+  if (!heroTextIsAbovePortrait || !mobileServicesBox || mobileServicesBox.width < 360 || mobileWords !== 3 || await mobileAboutVideo.count() !== 1 || !mobileCtaBox || mobileCtaBox.width < 100 || !mobileServicesCtaBox || mobileServicesCtaBox.width < 100 || await mobileServicesCta.getAttribute("href") !== "https://t.me/Tristan_81" || await mobileCaptions.count() !== 2 || mobileCaptionBoxes.some((box) => !box || box.width < 130 || box.height < 50) || mobileCaptionFontSize < 13) throw new Error("Services or about scene is not readable on mobile");
   await mobile.close();
 
   const reduced = await browser.newContext({ viewport: { width: 1280, height: 720 }, reducedMotion: "reduce" });

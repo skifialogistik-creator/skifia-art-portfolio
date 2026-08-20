@@ -12,13 +12,17 @@ describe("обновление бренда Skifia Art", () => {
     expect(homeSource).toContain("bg-[#cbb5f0]");
     expect(homeSource).toContain("text-[#201529]");
     expect(stylesSource).toContain(".services-wash { background:radial-gradient");
-    expect(stylesSource).toContain(".services-video { filter:saturate(.72)");
+    expect(stylesSource).toContain(".services-video { filter:saturate(1.16)");
     expect(homeSource).toContain("const serviceNotes = [content.services.annotationOne, content.services.annotationTwo, content.services.annotationThree];");
-    expect(homeSource).toContain("services-annotation-grid");
+    expect(homeSource).toContain("services-stage-grid");
+    expect(homeSource).toContain("className=\"services-stage\"");
     expect(homeSource).toContain("services-annotation-card");
-    expect(stylesSource).toContain(".services-annotation-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr));");
+    expect(stylesSource).toContain(".services-stage-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr));");
+    expect(stylesSource).toContain(".services-stage { display:grid; align-content:start;");
     expect(stylesSource).toContain(".services-annotation-card { position:relative; display:grid;");
-    expect(stylesSource).toContain(".services-annotation-grid { grid-template-columns:1fr; max-width:none; }");
+    expect(stylesSource).toContain(".services-stage-grid { grid-template-columns:1fr; width:100%; gap:.9rem; }");
+    expect(stylesSource).toContain("@keyframes services-video-drift");
+    expect(stylesSource).toContain(".services-video { animation:services-video-drift 13s");
   });
 
   it("сохраняет мобильную компоновку проектов и финального CTA", () => {

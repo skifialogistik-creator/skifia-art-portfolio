@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { BriefSubmissionPayload, InsertUser, briefSubmissions, siteContentSettings, users } from "../drizzle/schema";
+import { BriefSubmissionPayload, InsertUser, briefSubmissions, siteContentSettings, siteMediaAssets, users } from "../drizzle/schema";
 import { nanoid } from "nanoid";
 import { ENV } from './_core/env';
 import { defaultSiteContent, type SiteContent } from "../shared/siteContent";
@@ -139,4 +139,63 @@ export async function saveSiteContent(content: SiteContent): Promise<SiteContent
 
   await db.insert(siteContentSettings).values({ id: 1, content }).onDuplicateKeyUpdate({ set: { content } });
   return content;
+}
+
+export type MediaSlot = "avatar" | "services-video" | "about-video";
+export type BriefSubmissionStatus = "received" | "reviewed" | "archived";
+
+type MediaAssetInput = {
+  slot: MediaSlot;
+  key: string;
+  url: string;
+  mimeType: string;
+  label: string;
+  originalName: string;
+  sizeBytes: number;
+};
+
+export async function getMediaAssets() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(siteMediaAssets).orderBy(siteMediaAssets.slot);
+}
+
+export async function saveMediaAsset(asset: MediaAssetInput) {
+  const db = await getDb();
+  if (!db) throw new Error("Хранилище медиа временно недоступно. Повторите попытку позже.");
+
+  await db.insert(siteMediaAssets).values(asset).onDuplicateKeyUpdate({
+    set: {
+      key: asset.key,
+      url: asset.url,
+      mimeType: asset.mimeType,
+      label: asset.label,
+      originalName: asset.originalName,
+      sizeBytes: asset.sizeBytes,
+    },
+  });
+
+  const result = await db.select().from(siteMediaAssets).where(eq(siteMediaAssets.slot, asset.slot)).limit(1);
+  const saved = result[0];
+  if (!saved) throw new Error("Не удалось сохранить информацию о медиафайле.");
+  return saved;
+}
+
+export async function getBriefSubmissions() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(briefSubmissions).orderBy(desc(briefSubmissions.createdAt)).limit(250);
+}
+
+export async function updateBriefSubmissionStatus(publicId: string, status: BriefSubmissionStatus) {
+  const db = await getDb();
+  if (!db) throw new Error("База заявок временно недоступна. Повторите попытку позже.");
+
+  await db.update(briefSubmissions).set({ status }).where(eq(briefSubmissions.publicId, publicId));
+  const result = await db.select().from(briefSubmissions).where(eq(briefSubmissions.publicId, publicId)).limit(1);
+  const updated = result[0];
+  if (!updated) throw new Error("Заявка не найдена.");
+  return updated;
 }

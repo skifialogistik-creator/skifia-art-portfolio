@@ -78,3 +78,18 @@ export const siteContentSettings = mysqlTable("siteContentSettings", {
 });
 
 export type SiteContentSettings = typeof siteContentSettings.$inferSelect;
+
+/** Current owner-managed files that are rendered in key public website scenes. */
+export const siteMediaAssets = mysqlTable("siteMediaAssets", {
+  id: int("id").autoincrement().primaryKey(),
+  slot: varchar("slot", { length: 40 }).notNull().unique(),
+  key: varchar("key", { length: 500 }).notNull(),
+  url: varchar("url", { length: 700 }).notNull(),
+  mimeType: varchar("mimeType", { length: 120 }).notNull(),
+  label: varchar("label", { length: 120 }).notNull(),
+  originalName: varchar("originalName", { length: 255 }).notNull(),
+  sizeBytes: int("sizeBytes").notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SiteMediaAsset = typeof siteMediaAssets.$inferSelect;

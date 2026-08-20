@@ -1,4 +1,5 @@
 import { int, json, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import type { SiteContent } from "../shared/siteContent";
 
 /**
  * Core user table backing auth flow.
@@ -68,3 +69,12 @@ export const briefSubmissions = mysqlTable("briefSubmissions", {
 
 export type BriefSubmission = typeof briefSubmissions.$inferSelect;
 export type InsertBriefSubmission = typeof briefSubmissions.$inferInsert;
+
+/** Singleton record with all owner-editable public website content. */
+export const siteContentSettings = mysqlTable("siteContentSettings", {
+  id: int("id").primaryKey(),
+  content: json("content").$type<SiteContent>().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SiteContentSettings = typeof siteContentSettings.$inferSelect;

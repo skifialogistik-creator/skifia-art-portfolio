@@ -1,8 +1,9 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { BriefSubmissionPayload, InsertUser, briefSubmissions, users } from "../drizzle/schema";
+import { BriefSubmissionPayload, InsertUser, briefSubmissions, siteContentSettings, users } from "../drizzle/schema";
 import { nanoid } from "nanoid";
 import { ENV } from './_core/env';
+import { defaultSiteContent, type SiteContent } from "../shared/siteContent";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -108,4 +109,34 @@ export async function createBriefSubmission(payload: BriefSubmissionPayload) {
   });
 
   return { publicId };
+}
+
+export async function getSiteContent(): Promise<SiteContent> {
+  const db = await getDb();
+  if (!db) return defaultSiteContent;
+
+  const result = await db.select({ content: siteContentSettings.content }).from(siteContentSettings).where(eq(siteContentSettings.id, 1)).limit(1);
+  const stored = result[0]?.content;
+  if (!stored) return defaultSiteContent;
+
+  return {
+    ...defaultSiteContent,
+    ...stored,
+    branding: { ...defaultSiteContent.branding, ...stored.branding },
+    hero: { ...defaultSiteContent.hero, ...stored.hero },
+    about: { ...defaultSiteContent.about, ...stored.about },
+    services: { ...defaultSiteContent.services, ...stored.services },
+    closing: { ...defaultSiteContent.closing, ...stored.closing },
+    brief: { ...defaultSiteContent.brief, ...stored.brief },
+    company: { ...defaultSiteContent.company, ...stored.company },
+    projects: stored.projects?.length ? stored.projects : defaultSiteContent.projects,
+  };
+}
+
+export async function saveSiteContent(content: SiteContent): Promise<SiteContent> {
+  const db = await getDb();
+  if (!db) throw new Error("База настроек временно недоступна. Повторите сохранение позже.");
+
+  await db.insert(siteContentSettings).values({ id: 1, content }).onDuplicateKeyUpdate({ set: { content } });
+  return content;
 }

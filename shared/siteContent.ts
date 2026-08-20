@@ -1,0 +1,138 @@
+import { z } from "zod";
+
+const projectSchema = z.object({
+  number: z.string().trim().min(1).max(4),
+  name: z.string().trim().min(1).max(120),
+  category: z.string().trim().min(1).max(160),
+  description: z.string().trim().min(1).max(1000),
+  url: z.string().trim().max(500),
+  visual: z.enum(["violet", "lime", "coral"]),
+});
+
+export const siteContentSchema = z.object({
+  branding: z.object({
+    siteName: z.string().trim().min(1).max(80),
+    navAbout: z.string().trim().min(1).max(40),
+    navServices: z.string().trim().min(1).max(40),
+    navProjects: z.string().trim().min(1).max(40),
+    navContact: z.string().trim().min(1).max(40),
+    footerNote: z.string().trim().max(240),
+  }),
+  hero: z.object({
+    lineOne: z.string().trim().min(1).max(60),
+    lineTwo: z.string().trim().min(1).max(60),
+    lineThree: z.string().trim().min(1).max(60),
+    note: z.string().trim().min(1).max(360),
+    ctaLabel: z.string().trim().min(1).max(80),
+  }),
+  about: z.object({
+    eyebrow: z.string().trim().min(1).max(80),
+    tag: z.string().trim().min(1).max(80),
+    lineOne: z.string().trim().min(1).max(80),
+    lineTwo: z.string().trim().min(1).max(80),
+    accentWord: z.string().trim().min(1).max(80),
+    lineThree: z.string().trim().min(1).max(80),
+    description: z.string().trim().min(1).max(1200),
+    ctaLabel: z.string().trim().min(1).max(80),
+  }),
+  services: z.object({
+    eyebrow: z.string().trim().min(1).max(80),
+    ctaLabel: z.string().trim().min(1).max(80),
+    statOneLabel: z.string().trim().min(1).max(80),
+    statTwoLabel: z.string().trim().min(1).max(80),
+    statThreeLabel: z.string().trim().min(1).max(80),
+    annotationOne: z.string().trim().min(1).max(600),
+    annotationTwo: z.string().trim().min(1).max(600),
+    headlineOne: z.string().trim().min(1).max(80),
+    headlineTwo: z.string().trim().min(1).max(80),
+    headlineThree: z.string().trim().min(1).max(80),
+  }),
+  projects: z.array(projectSchema).min(1).max(6),
+  closing: z.object({
+    eyebrow: z.string().trim().min(1).max(160),
+    lineOne: z.string().trim().min(1).max(100),
+    lineTwo: z.string().trim().min(1).max(100),
+    ctaLabel: z.string().trim().min(1).max(80),
+  }),
+  brief: z.object({
+    label: z.string().trim().min(1).max(80),
+    title: z.string().trim().min(1).max(240),
+    intro: z.string().trim().min(1).max(800),
+    privacyNote: z.string().trim().min(1).max(400),
+  }),
+  company: z.object({
+    companyName: z.string().trim().max(160),
+    phone: z.string().trim().max(80),
+    email: z.string().trim().max(320),
+    telegramUrl: z.string().trim().max(500),
+    address: z.string().trim().max(240),
+    legalLine: z.string().trim().max(300),
+  }),
+});
+
+export type SiteContent = z.infer<typeof siteContentSchema>;
+
+export const defaultSiteContent: SiteContent = {
+  branding: {
+    siteName: "site maker",
+    navAbout: "Обо мне",
+    navServices: "Услуги",
+    navProjects: "Проекты",
+    navContact: "Контакт",
+    footerNote: "Дизайн, разработка и запуск сайтов с характером.",
+  },
+  hero: {
+    lineOne: "Привет,",
+    lineTwo: "я создаю",
+    lineThree: "сайты",
+    note: "Дизайн и разработка сайтов, которые хочется рассматривать и открывать снова.",
+    ctaLabel: "Обсудить проект",
+  },
+  about: {
+    eyebrow: "Обо мне / 02",
+    tag: "дизайн с характером",
+    lineOne: "Готова",
+    lineTwo: "обсудить",
+    accentWord: "ваш",
+    lineThree: "проект.",
+    description: "Я превращаю идею в сайт с характером: выстраиваю структуру, визуальный язык и понятный путь от первого экрана до заявки. Технические детали беру на себя, чтобы у вас оставалось время на проект.",
+    ctaLabel: "Заполнить бриф",
+  },
+  services: {
+    eyebrow: "Услуги / 03",
+    ctaLabel: "Начать проект",
+    statOneLabel: "СТРАТЕГИЯ\nИ СМЫСЛ",
+    statTwoLabel: "ДИЗАЙН\nИ СИСТЕМА",
+    statThreeLabel: "КОД\nИ ЗАПУСК",
+    annotationOne: "Структура, визуал и разработка — чтобы сайт точно передавал характер вашего проекта.",
+    annotationTwo: "От первого смысла и прототипа — до запущенного сайта, которым легко управлять.",
+    headlineOne: "СМЕЛЫЕ",
+    headlineTwo: "САЙТЫ",
+    headlineThree: "ПОД КЛЮЧ",
+  },
+  projects: [
+    { number: "01", name: "Ваш первый кейс", category: "Сайт услуг / лендинг", description: "Добавьте название проекта, несколько слов о задаче и адрес опубликованного сайта.", url: "", visual: "violet" },
+    { number: "02", name: "Ваш второй кейс", category: "Бренд / промо-сайт", description: "Покажите характер работы: спокойный сервис, смелый продукт или личный бренд.", url: "", visual: "lime" },
+    { number: "03", name: "Ваш третий кейс", category: "Интернет-проект / сервис", description: "Добавьте проект, когда он появится — карточка уже подготовлена.", url: "", visual: "coral" },
+  ],
+  closing: {
+    eyebrow: "Есть идея? Соберём её в рабочий сайт.",
+    lineOne: "Пора сделать",
+    lineTwo: "что-то заметное.",
+    ctaLabel: "Начать",
+  },
+  brief: {
+    label: "Заявка на сайт",
+    title: "Расскажите о проекте так, чтобы он стал интереснее.",
+    intro: "Не нужно подбирать технические слова. Ответьте как удобно: это поможет увидеть ваш характер, будущую структуру и сильные визуальные ходы.",
+    privacyNote: "Не указывайте пароли, платёжные данные и другие секреты.",
+  },
+  company: {
+    companyName: "",
+    phone: "",
+    email: "",
+    telegramUrl: "https://t.me/Tristan_81",
+    address: "",
+    legalLine: "",
+  },
+};

@@ -1,10 +1,11 @@
 import { COOKIE_NAME } from "@shared/const";
 import { z } from "zod";
-import { createBriefSubmission } from "./db";
+import { createBriefSubmission, getSiteContent, saveSiteContent } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { notifyOwner } from "./_core/notification";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
+import { ownerProcedure, publicProcedure, router } from "./_core/trpc";
+import { siteContentSchema } from "../shared/siteContent";
 
 export const briefSubmissionSchema = z.object({
   fullName: z.string().trim().min(2).max(160),
@@ -58,6 +59,13 @@ export const appRouter = router({
         });
         return submission;
       }),
+  }),
+  siteContent: router({
+    public: publicProcedure.query(() => getSiteContent()),
+    admin: router({
+      get: ownerProcedure.query(() => getSiteContent()),
+      update: ownerProcedure.input(siteContentSchema).mutation(({ input }) => saveSiteContent(input)),
+    }),
   }),
 });
 

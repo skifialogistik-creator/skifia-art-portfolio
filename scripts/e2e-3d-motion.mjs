@@ -60,7 +60,10 @@ try {
   const aboutCtaBox = await aboutCta.boundingBox();
   await services.scrollIntoViewIfNeeded();
   const servicesCtaBox = await servicesCta.boundingBox();
-  if (!aboutCtaBox || !servicesCtaBox || aboutCtaBox.width < 100 || servicesCtaBox.width < 100) throw new Error("Primary CTAs are not sufficiently visible");
+  const servicesCtaHref = await servicesCta.getAttribute("href");
+  const serviceCaptions = services.locator(".services-caption");
+  const firstCaptionFontSize = await serviceCaptions.first().evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
+  if (!aboutCtaBox || !servicesCtaBox || aboutCtaBox.width < 100 || servicesCtaBox.width < 100 || servicesCtaHref !== "https://t.me/Tristan_81" || await serviceCaptions.count() !== 2 || firstCaptionFontSize < 14) throw new Error("Primary CTAs or service captions are not sufficiently visible");
   await desktop.close();
 
   const mobile = await browser.newContext({ viewport: { width: 390, height: 844 } });
@@ -75,7 +78,15 @@ try {
   const mobileAboutVideo = mobileAbout.locator("video");
   const mobileAboutCta = mobileAbout.locator(".about-portrait-cta");
   const mobileCtaBox = await mobileAboutCta.boundingBox();
-  if (!mobileServicesBox || mobileServicesBox.width < 360 || mobileWords !== 3 || await mobileAboutVideo.count() !== 1 || !mobileCtaBox || mobileCtaBox.width < 100) throw new Error("Services or about scene is not readable on mobile");
+  await mobileServices.scrollIntoViewIfNeeded();
+  const mobileServicesCta = mobileServices.locator(".services-primary-cta");
+  const mobileServicesCtaBox = await mobileServicesCta.boundingBox();
+  const mobileCaptions = mobileServices.locator(".services-caption");
+  const mobileCaptionBoxes = await Promise.all([0, 1].map((index) => mobileCaptions.nth(index).boundingBox()));
+  const mobileCaptionFontSize = await mobileCaptions.first().evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
+  await mobilePage.waitForTimeout(1200);
+  await mobilePage.screenshot({ path: "/home/ubuntu/mobile-services-caption-check.png", fullPage: false });
+  if (!mobileServicesBox || mobileServicesBox.width < 360 || mobileWords !== 3 || await mobileAboutVideo.count() !== 1 || !mobileCtaBox || mobileCtaBox.width < 100 || !mobileServicesCtaBox || mobileServicesCtaBox.width < 100 || await mobileServicesCta.getAttribute("href") !== "https://t.me/Tristan_81" || await mobileCaptions.count() !== 2 || mobileCaptionBoxes.some((box) => !box || box.width < 130 || box.height < 50) || mobileCaptionFontSize < 13) throw new Error("Services or about scene is not readable on mobile");
   await mobile.close();
 
   const reduced = await browser.newContext({ viewport: { width: 1280, height: 720 }, reducedMotion: "reduce" });

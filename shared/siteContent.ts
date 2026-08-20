@@ -74,7 +74,7 @@ export type SiteContent = z.infer<typeof siteContentSchema>;
 
 export const defaultSiteContent: SiteContent = {
   branding: {
-    siteName: "site maker",
+    siteName: "Skifia Art",
     navAbout: "Обо мне",
     navServices: "Услуги",
     navProjects: "Проекты",

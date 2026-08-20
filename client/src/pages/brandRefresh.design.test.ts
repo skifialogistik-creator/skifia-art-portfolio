@@ -62,6 +62,14 @@ describe("обновление бренда Skifia Art", () => {
     expect(indexSource).toContain('rel="icon" type="image/png" href="/manus-storage/skifia-art-favicon_a0d94c2b.png"');
   });
 
+  it("показывает визуальную обложку в первом кликабельном кейсе Skifia", () => {
+    expect(homeSource).toContain('const coverUrl = index === 0 && work.url ? "/manus-storage/skifia-case-cover_13836fd9.png" : null;');
+    expect(homeSource).toContain('alt="Визуальная обложка кейса Skifia"');
+    expect(homeSource).toContain('className="project-case-cover"');
+    expect(stylesSource).toContain(".project-case-cover { position:absolute;");
+    expect(stylesSource).toContain(".project-art__tile--hero-cover:hover .project-case-cover");
+  });
+
   it("подключает разные иллюстрации стратегии, дизайна и запуска в карточки услуг", () => {
     expect(homeSource).toContain("const serviceIllustrations = [Compass, PanelsTopLeft, Rocket];");
     expect(homeSource).toContain('className="service-stage-icon"');

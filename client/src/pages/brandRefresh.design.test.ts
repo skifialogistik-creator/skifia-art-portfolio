@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 const homeSource = readFileSync(new URL("./Home.tsx", import.meta.url), "utf8");
 const stylesSource = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+const indexSource = readFileSync(new URL("../../index.html", import.meta.url), "utf8");
 
 describe("обновление бренда Skifia Art", () => {
   it("сохраняет мобильную сцену услуг сиреневой, полноэкранной и читабельной", () => {
@@ -12,7 +13,12 @@ describe("обновление бренда Skifia Art", () => {
     expect(homeSource).toContain("text-[#201529]");
     expect(stylesSource).toContain(".services-wash { background:radial-gradient");
     expect(stylesSource).toContain(".services-video { filter:saturate(.72)");
-    expect(stylesSource).toContain(".services-annotation { grid-template-columns:1fr; max-width:238px;");
+    expect(homeSource).toContain("const serviceNotes = [content.services.annotationOne, content.services.annotationTwo, content.services.annotationThree];");
+    expect(homeSource).toContain("services-annotation-grid");
+    expect(homeSource).toContain("services-annotation-card");
+    expect(stylesSource).toContain(".services-annotation-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr));");
+    expect(stylesSource).toContain(".services-annotation-card { position:relative; display:grid;");
+    expect(stylesSource).toContain(".services-annotation-grid { grid-template-columns:1fr; max-width:none; }");
   });
 
   it("сохраняет мобильную компоновку проектов и финального CTA", () => {
@@ -46,5 +52,9 @@ describe("обновление бренда Skifia Art", () => {
     expect(closingSection).toContain("font-display text-[clamp(2.8rem,7vw,6.4rem)]");
     expect(stylesSource).toContain(".hero-heading { background:linear-gradient(180deg,#d8d8dc 0%,#9ea1ab 100%)");
     expect(stylesSource).toContain(".services-wash { background:radial-gradient");
+  });
+
+  it("подключает фирменный favicon Skifia Art", () => {
+    expect(indexSource).toContain('rel="icon" type="image/png" href="/manus-storage/skifia-art-favicon_a0d94c2b.png"');
   });
 });

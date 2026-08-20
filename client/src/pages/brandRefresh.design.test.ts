@@ -61,4 +61,12 @@ describe("обновление бренда Skifia Art", () => {
   it("подключает фирменный favicon Skifia Art", () => {
     expect(indexSource).toContain('rel="icon" type="image/png" href="/manus-storage/skifia-art-favicon_a0d94c2b.png"');
   });
+
+  it("подключает разные иллюстрации стратегии, дизайна и запуска в карточки услуг", () => {
+    expect(homeSource).toContain("const serviceIllustrations = [Compass, PanelsTopLeft, Rocket];");
+    expect(homeSource).toContain('className="service-stage-icon"');
+    expect(stylesSource).toContain(".service-stage-icon { position:absolute;");
+    expect(stylesSource).toContain("@keyframes service-icon-float");
+    expect(stylesSource).toContain(".service-stage-icon { animation:service-icon-float 4.6s");
+  });
 });

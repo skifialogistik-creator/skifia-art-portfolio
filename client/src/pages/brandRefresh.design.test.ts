@@ -63,11 +63,23 @@ describe("обновление бренда Skifia Art", () => {
   });
 
   it("показывает визуальную обложку в первом кликабельном кейсе Skifia", () => {
-    expect(homeSource).toContain('const coverUrl = index === 0 && work.url ? "/manus-storage/skifia-case-cover_13836fd9.png" : null;');
+    expect(homeSource).toContain("const isSkifiaCase = index === 0 && Boolean(work.url);");
+    expect(homeSource).toContain('const coverUrl = isSkifiaCase ? "/manus-storage/skifia-case-cover_13836fd9.png" : null;');
     expect(homeSource).toContain('alt="Визуальная обложка кейса Skifia"');
     expect(homeSource).toContain('className="project-case-cover"');
     expect(stylesSource).toContain(".project-case-cover { position:absolute;");
     expect(stylesSource).toContain(".project-art__tile--hero-cover:hover .project-case-cover");
+  });
+
+  it("показывает в кейсе Skifia реальные экраны и управляемое описание результата", () => {
+    expect(homeSource).toContain('src: "/manus-storage/skifia-hero-real_8a891d4d.png"');
+    expect(homeSource).toContain('src: "/manus-storage/skifia-services-real_e2d59776.png"');
+    expect(homeSource).toContain('alt: "Первый экран опубликованного сайта Skifia"');
+    expect(homeSource).toContain('alt: "Раздел услуг опубликованного сайта Skifia"');
+    expect(homeSource).toContain('className="project-case-summary"');
+    expect(homeSource).toContain("{work.description}");
+    expect(stylesSource).toContain(".project-art__tile--screenshot { border:1px solid");
+    expect(stylesSource).toContain(".project-case-summary { position:relative;");
   });
 
   it("подключает разные иллюстрации стратегии, дизайна и запуска в карточки услуг", () => {

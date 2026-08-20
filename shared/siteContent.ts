@@ -113,7 +113,7 @@ export const defaultSiteContent: SiteContent = {
     headlineThree: "ПОД КЛЮЧ",
   },
   projects: [
-    { number: "01", name: "Skifia", category: "Лендинг / грузоперевозки", description: "Сайт грузоперевозок по Польше: услуги, расчёт стоимости и заявка на перевозку.", url: "https://skifia.online/", visual: "violet" },
+    { number: "01", name: "Skifia", category: "Лендинг / грузоперевозки", description: "Лендинг транспортных услуг для польской компании Skifia — информативный первый экран, структура услуг, онлайн-калькулятор стоимости и форма заявки. Поддержка 4 языков: PL / EN / UA / RU.", url: "https://skifia.online/", visual: "violet" },
     { number: "02", name: "Ваш второй кейс", category: "Бренд / промо-сайт", description: "Покажите характер работы: спокойный сервис, смелый продукт или личный бренд.", url: "", visual: "lime" },
     { number: "03", name: "Ваш третий кейс", category: "Интернет-проект / сервис", description: "Добавьте проект, когда он появится — карточка уже подготовлена.", url: "", visual: "coral" },
   ],

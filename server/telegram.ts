@@ -43,7 +43,7 @@ function workButton(publicId: string): InlineKeyboard {
 }
 
 function webhookSecret() {
-  return createHmac("sha256", ENV.cookieSecret || "telegram-webhook").update("telegram-webhook").digest("hex");
+  return createHmac("sha256", ENV.telegramBotToken || ENV.cookieSecret || "telegram-webhook").update("telegram-webhook").digest("hex");
 }
 
 export function hasValidTelegramWebhookSecret(value: string | undefined) {
@@ -81,6 +81,10 @@ export async function sendTelegramText(chatId: string, text: string, replyMarkup
 
 export async function notifyTelegramAboutSiteInquiry(chatId: string | undefined, inquiry: TelegramSiteInquiry) {
   if (process.env.VITEST || !chatId) return { sent: false, reason: process.env.VITEST ? "Skipped during tests" : "Telegram chat is not configured" } as const;
+  return sendTelegramInquiry(chatId, inquiry);
+}
+
+export async function sendTelegramInquiry(chatId: string, inquiry: TelegramSiteInquiry) {
   return sendTelegramText(chatId, inquiryMessage(inquiry), workButton(inquiry.publicId));
 }
 

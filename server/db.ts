@@ -129,7 +129,7 @@ export async function getSiteContent(): Promise<SiteContent> {
     closing: { ...defaultSiteContent.closing, ...stored.closing },
     brief: { ...defaultSiteContent.brief, ...stored.brief },
     company: { ...defaultSiteContent.company, ...stored.company },
-    projects: stored.projects?.length ? stored.projects : defaultSiteContent.projects,
+    projects: stored.projects?.length ? stored.projects.map((project) => ({ ...project, coverUrl: project.coverUrl ?? "" })) : defaultSiteContent.projects,
   };
 }
 
@@ -141,7 +141,7 @@ export async function saveSiteContent(content: SiteContent): Promise<SiteContent
   return content;
 }
 
-export type MediaSlot = "avatar" | "services-video" | "about-video";
+export type MediaSlot = "avatar" | "services-video" | "about-video" | "project-cover-01" | "project-cover-02" | "project-cover-03" | "project-cover-04" | "project-cover-05" | "project-cover-06";
 export type BriefSubmissionStatus = "received" | "reviewed" | "archived";
 
 type MediaAssetInput = {

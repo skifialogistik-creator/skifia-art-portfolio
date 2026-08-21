@@ -89,4 +89,15 @@ describe("обновление бренда Skifia Art", () => {
     expect(stylesSource).toContain("@keyframes service-icon-float");
     expect(stylesSource).toContain(".service-stage-icon { animation:service-icon-float 4.6s");
   });
+
+  it("заменяет декоративную ленту на витрину готовых сайтов с переворотом карточки", () => {
+    expect(homeSource).toContain('id="site-storefront"');
+    expect(homeSource).toContain("Сайты<br /><span>в наличии.</span>");
+    expect(homeSource).toContain("function StorefrontSiteCard");
+    expect(homeSource).toContain('className={`site-store-card__flip ${flipped ? "is-flipped" : ""}`}');
+    expect(homeSource).toContain('work.url || "#brief"');
+    expect(stylesSource).toContain(".site-store-card__flip { position:relative;");
+    expect(stylesSource).toContain(".site-store-card__back { justify-content:space-between;");
+    expect(stylesSource).toContain(".site-store-card:hover .site-store-card__flip { transform:rotateY(180deg);");
+  });
 });

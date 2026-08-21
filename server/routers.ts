@@ -41,10 +41,16 @@ const mediaSlotConfig = {
   avatar: { label: "3D-портрет на первом экране", kind: "image", mimes: ["image/jpeg", "image/png", "image/webp"], maxBytes: 5 * 1024 * 1024 },
   "services-video": { label: "Видеофон блока «Услуги»", kind: "video", mimes: ["video/mp4", "video/webm"], maxBytes: 50 * 1024 * 1024 },
   "about-video": { label: "Видеопортрет блока «Обо мне»", kind: "video", mimes: ["video/mp4", "video/webm"], maxBytes: 50 * 1024 * 1024 },
+  "project-cover-01": { label: "Обложка витрины сайта 01", kind: "image", mimes: ["image/jpeg", "image/png", "image/webp"], maxBytes: 5 * 1024 * 1024 },
+  "project-cover-02": { label: "Обложка витрины сайта 02", kind: "image", mimes: ["image/jpeg", "image/png", "image/webp"], maxBytes: 5 * 1024 * 1024 },
+  "project-cover-03": { label: "Обложка витрины сайта 03", kind: "image", mimes: ["image/jpeg", "image/png", "image/webp"], maxBytes: 5 * 1024 * 1024 },
+  "project-cover-04": { label: "Обложка витрины сайта 04", kind: "image", mimes: ["image/jpeg", "image/png", "image/webp"], maxBytes: 5 * 1024 * 1024 },
+  "project-cover-05": { label: "Обложка витрины сайта 05", kind: "image", mimes: ["image/jpeg", "image/png", "image/webp"], maxBytes: 5 * 1024 * 1024 },
+  "project-cover-06": { label: "Обложка витрины сайта 06", kind: "image", mimes: ["image/jpeg", "image/png", "image/webp"], maxBytes: 5 * 1024 * 1024 },
 } as const;
 
 const mediaUploadSchema = z.object({
-  slot: z.enum(["avatar", "services-video", "about-video"]),
+  slot: z.enum(["avatar", "services-video", "about-video", "project-cover-01", "project-cover-02", "project-cover-03", "project-cover-04", "project-cover-05", "project-cover-06"]),
   fileName: z.string().trim().min(1).max(255),
   mimeType: z.string().trim().min(1).max(120),
   dataBase64: z.string().trim().min(4).max(70 * 1024 * 1024),

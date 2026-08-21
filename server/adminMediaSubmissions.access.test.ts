@@ -58,4 +58,15 @@ describe("owner-only media and brief submission routes", () => {
       dataBase64: "AAAAAGZ0eXA=",
     })).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
+
+  it("accepts the project-cover slot but rejects a video sent as a showcase image", async () => {
+    const owner = createCaller(ENV.ownerOpenId, "admin");
+
+    await expect(owner.media.upload({
+      slot: "project-cover-01",
+      fileName: "incorrect.mp4",
+      mimeType: "video/mp4",
+      dataBase64: "AAAAAGZ0eXA=",
+    })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
 });

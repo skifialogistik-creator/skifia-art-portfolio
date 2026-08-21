@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 const homeSource = readFileSync(new URL("./Home.tsx", import.meta.url), "utf8");
 const stylesSource = readFileSync(new URL("../index.css", import.meta.url), "utf8");
 const indexSource = readFileSync(new URL("../../index.html", import.meta.url), "utf8");
+const inquiryDialogSource = readFileSync(new URL("../components/SiteInquiryDialog.tsx", import.meta.url), "utf8");
 
 describe("обновление бренда Skifia Art", () => {
   it("сохраняет мобильную сцену услуг сиреневой, полноэкранной и читабельной", () => {
@@ -95,7 +96,7 @@ describe("обновление бренда Skifia Art", () => {
     expect(homeSource).toContain("Сайты<br /><span>в наличии.</span>");
     expect(homeSource).toContain("function StorefrontSiteCard");
     expect(homeSource).toContain('className={`site-store-card__flip ${flipped ? "is-flipped" : ""}`}');
-    expect(homeSource).toContain('work.url || "#brief"');
+    expect(homeSource).toContain('onRequest={setInquiryWork}');
     expect(stylesSource).toContain(".site-store-card__flip { position:relative;");
     expect(stylesSource).toContain(".site-store-card__back { justify-content:space-between;");
     expect(stylesSource).toContain(".site-store-card:hover .site-store-card__flip { transform:rotateY(180deg);");
@@ -109,5 +110,16 @@ describe("обновление бренда Skifia Art", () => {
     expect(homeSource).toContain("Уже продан");
     expect(stylesSource).toContain(".site-store-card__status--available { color:#c9ff9f;");
     expect(stylesSource).toContain(".site-store-card__status--sold { color:#ffb1c6;");
+  });
+
+  it("открывает короткую заявку только для доступного сайта и показывает выбранный сайт в форме", () => {
+    expect(homeSource).toContain('const [inquiryWork, setInquiryWork] = useState<SiteContent["projects"][number] | null>(null);');
+    expect(homeSource).toContain('isSold ? <span className="site-store-card__link site-store-card__link--sold">Уже продан</span>');
+    expect(homeSource).toContain("<button type=\"button\" onClick={(event) => { event.stopPropagation(); onRequest(work); }} className=\"site-store-card__inquiry\">Оставить заявку</button>");
+    expect(homeSource).toContain("<SiteInquiryDialog work={inquiryWork}");
+    expect(inquiryDialogSource).toContain("trpc.siteInquiries.submit.useMutation()");
+    expect(inquiryDialogSource).toContain("siteNumber: work.number");
+    expect(inquiryDialogSource).toContain("Заявка на {work.name}");
+    expect(stylesSource).toContain(".site-store-card__inquiry { border:1px solid");
   });
 });

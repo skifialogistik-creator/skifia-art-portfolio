@@ -22,6 +22,13 @@
       "when": 1787232970223,
       "tag": "0002_bizarre_human_robot",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1787300418726,
+      "tag": "0003_ambitious_chat",
+      "breakpoints": true
     }
   ]
 }

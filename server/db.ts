@@ -1,6 +1,6 @@
 import { desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { BriefSubmissionPayload, InsertUser, briefSubmissions, siteContentSettings, siteMediaAssets, users } from "../drizzle/schema";
+import { BriefSubmissionPayload, InsertUser, briefSubmissions, siteContentSettings, siteInquiries, siteMediaAssets, users } from "../drizzle/schema";
 import { nanoid } from "nanoid";
 import { ENV } from './_core/env';
 import { defaultSiteContent, type SiteContent } from "../shared/siteContent";
@@ -111,6 +111,24 @@ export async function createBriefSubmission(payload: BriefSubmissionPayload) {
   return { publicId };
 }
 
+export type SiteInquiryInput = {
+  siteNumber: string;
+  siteName: string;
+  price: string;
+  fullName: string;
+  contact: string;
+  comment: string;
+};
+
+export async function createSiteInquiry(input: SiteInquiryInput) {
+  const db = await getDb();
+  if (!db) throw new Error("База заявок временно недоступна. Пожалуйста, повторите попытку позже.");
+
+  const publicId = `SI-${nanoid(9).toUpperCase()}`;
+  await db.insert(siteInquiries).values({ publicId, ...input });
+  return { publicId };
+}
+
 export async function getSiteContent(): Promise<SiteContent> {
   const db = await getDb();
   if (!db) return defaultSiteContent;
@@ -143,6 +161,7 @@ export async function saveSiteContent(content: SiteContent): Promise<SiteContent
 
 export type MediaSlot = "avatar" | "services-video" | "about-video" | "project-cover-01" | "project-cover-02" | "project-cover-03" | "project-cover-04" | "project-cover-05" | "project-cover-06";
 export type BriefSubmissionStatus = "received" | "reviewed" | "archived";
+export type SiteInquiryStatus = BriefSubmissionStatus;
 
 type MediaAssetInput = {
   slot: MediaSlot;
@@ -197,5 +216,22 @@ export async function updateBriefSubmissionStatus(publicId: string, status: Brie
   const result = await db.select().from(briefSubmissions).where(eq(briefSubmissions.publicId, publicId)).limit(1);
   const updated = result[0];
   if (!updated) throw new Error("Заявка не найдена.");
+  return updated;
+}
+
+export async function getSiteInquiries() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(siteInquiries).orderBy(desc(siteInquiries.createdAt)).limit(250);
+}
+
+export async function updateSiteInquiryStatus(publicId: string, status: SiteInquiryStatus) {
+  const db = await getDb();
+  if (!db) throw new Error("База заявок временно недоступна. Повторите попытку позже.");
+
+  await db.update(siteInquiries).set({ status }).where(eq(siteInquiries.publicId, publicId));
+  const result = await db.select().from(siteInquiries).where(eq(siteInquiries.publicId, publicId)).limit(1);
+  const updated = result[0];
+  if (!updated) throw new Error("Заявка на сайт не найдена.");
   return updated;
 }

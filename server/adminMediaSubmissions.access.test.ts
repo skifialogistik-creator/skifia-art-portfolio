@@ -21,19 +21,21 @@ function createCaller(openId: string, role: "admin" | "user") {
   });
 }
 
-describe("owner-only media and brief submission routes", () => {
-  it("allows the owner to read the active media library and the submissions list", async () => {
+describe("owner-only media and submission routes", () => {
+  it("allows the owner to read the active media library and both submission journals", async () => {
     const owner = createCaller(ENV.ownerOpenId, "admin");
 
     await expect(owner.media.list()).resolves.toEqual(expect.any(Array));
     await expect(owner.submissions.list()).resolves.toEqual(expect.any(Array));
+    await expect(owner.siteInquiries.list()).resolves.toEqual(expect.any(Array));
   });
 
-  it("blocks a regular user from reading media or client submissions", async () => {
+  it("blocks a regular user from reading media or client submission journals", async () => {
     const visitor = createCaller("regular-user", "user");
 
     await expect(visitor.media.list()).rejects.toMatchObject({ code: "FORBIDDEN" });
     await expect(visitor.submissions.list()).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(visitor.siteInquiries.list()).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
   it("blocks another administrator from uploading media and changing a brief status", async () => {

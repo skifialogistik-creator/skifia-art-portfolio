@@ -70,6 +70,23 @@ export const briefSubmissions = mysqlTable("briefSubmissions", {
 export type BriefSubmission = typeof briefSubmissions.$inferSelect;
 export type InsertBriefSubmission = typeof briefSubmissions.$inferInsert;
 
+/** Short inquiries submitted from a ready-to-buy site card. */
+export const siteInquiries = mysqlTable("siteInquiries", {
+  id: int("id").autoincrement().primaryKey(),
+  publicId: varchar("publicId", { length: 32 }).notNull().unique(),
+  status: mysqlEnum("status", ["received", "reviewed", "archived"]).default("received").notNull(),
+  siteNumber: varchar("siteNumber", { length: 4 }).notNull(),
+  siteName: varchar("siteName", { length: 120 }).notNull(),
+  price: varchar("price", { length: 80 }).notNull(),
+  fullName: varchar("fullName", { length: 160 }).notNull(),
+  contact: varchar("contact", { length: 320 }).notNull(),
+  comment: text("comment").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type SiteInquiry = typeof siteInquiries.$inferSelect;
+export type InsertSiteInquiry = typeof siteInquiries.$inferInsert;
+
 /** Singleton record with all owner-editable public website content. */
 export const siteContentSettings = mysqlTable("siteContentSettings", {
   id: int("id").primaryKey(),

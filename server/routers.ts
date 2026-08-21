@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { COOKIE_NAME } from "@shared/const";
 import { z } from "zod";
-import { createBriefSubmission, getBriefSubmissions, getMediaAssets, getSiteContent, saveMediaAsset, saveSiteContent, updateBriefSubmissionStatus, type MediaSlot } from "./db";
+import { createBriefSubmission, createSiteInquiry, getBriefSubmissions, getMediaAssets, getSiteContent, getSiteInquiries, saveMediaAsset, saveSiteContent, updateBriefSubmissionStatus, updateSiteInquiryStatus, type MediaSlot } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { notifyOwner } from "./_core/notification";
 import { systemRouter } from "./_core/systemRouter";
@@ -34,6 +34,14 @@ export const briefSubmissionSchema = z.object({
   deadline: z.string().trim().min(2).max(120),
   budgetRange: z.string().trim().min(2).max(120),
   comment: z.string().trim().max(3000),
+  consent: z.literal(true),
+});
+
+export const siteInquirySchema = z.object({
+  siteNumber: z.string().trim().min(1).max(4),
+  fullName: z.string().trim().min(2).max(160),
+  contact: z.string().trim().min(5).max(320),
+  comment: z.string().trim().max(1500),
   consent: z.literal(true),
 });
 
@@ -88,6 +96,28 @@ export const appRouter = router({
       });
       return submission;
     }),
+  }),
+  siteInquiries: router({
+    submit: publicProcedure.input(siteInquirySchema).mutation(async ({ input }) => {
+      const site = (await getSiteContent()).projects.find((project) => project.number === input.siteNumber);
+      if (!site) throw new TRPCError({ code: "NOT_FOUND", message: "Этот сайт больше недоступен." });
+      if (site.availability === "sold") throw new TRPCError({ code: "BAD_REQUEST", message: "Этот сайт уже продан. Выберите другой вариант." });
+
+      const inquiry = await createSiteInquiry({
+        siteNumber: site.number,
+        siteName: site.name,
+        price: site.price,
+        fullName: input.fullName,
+        contact: input.contact,
+        comment: input.comment,
+      });
+      void notifyOwner({ title: "Новая заявка на готовый сайт", content: `${site.name}: ${input.fullName}. Номер заявки ${inquiry.publicId}.` });
+      return inquiry;
+    }),
+    list: ownerProcedure.query(() => getSiteInquiries()),
+    updateStatus: ownerProcedure
+      .input(z.object({ publicId: z.string().trim().min(4).max(32), status: z.enum(["received", "reviewed", "archived"]) }))
+      .mutation(({ input }) => updateSiteInquiryStatus(input.publicId, input.status)),
   }),
   siteContent: router({
     public: publicProcedure.query(() => getSiteContent()),

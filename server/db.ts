@@ -129,7 +129,7 @@ export async function getSiteContent(): Promise<SiteContent> {
     closing: { ...defaultSiteContent.closing, ...stored.closing },
     brief: { ...defaultSiteContent.brief, ...stored.brief },
     company: { ...defaultSiteContent.company, ...stored.company },
-    projects: stored.projects?.length ? stored.projects.map((project) => ({ ...project, coverUrl: project.coverUrl ?? "" })) : defaultSiteContent.projects,
+    projects: stored.projects?.length ? stored.projects.map((project) => ({ ...project, coverUrl: project.coverUrl ?? "", price: project.price ?? "Цена по запросу", availability: project.availability ?? "available" })) : defaultSiteContent.projects,
   };
 }
 

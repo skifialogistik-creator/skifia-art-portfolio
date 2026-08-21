@@ -7,6 +7,8 @@ const projectSchema = z.object({
   description: z.string().trim().min(1).max(1000),
   url: z.string().trim().max(500),
   coverUrl: z.string().trim().max(700).default(""),
+  price: z.string().trim().min(1).max(80).default("Цена по запросу"),
+  availability: z.enum(["available", "sold"]).default("available"),
   visual: z.enum(["violet", "lime", "coral"]),
 });
 
@@ -114,9 +116,9 @@ export const defaultSiteContent: SiteContent = {
     headlineThree: "ПОД КЛЮЧ",
   },
   projects: [
-    { number: "01", name: "Skifia", category: "Лендинг / грузоперевозки", description: "Лендинг транспортных услуг для польской компании Skifia — информативный первый экран, структура услуг, онлайн-калькулятор стоимости и форма заявки. Поддержка 4 языков: PL / EN / UA / RU.", url: "https://skifia.online/", coverUrl: "/manus-storage/skifia-hero-real_8a891d4d.png", visual: "violet" },
-    { number: "02", name: "Ваш второй кейс", category: "Бренд / промо-сайт", description: "Покажите характер работы: спокойный сервис, смелый продукт или личный бренд.", url: "", coverUrl: "", visual: "lime" },
-    { number: "03", name: "Ваш третий кейс", category: "Интернет-проект / сервис", description: "Добавьте проект, когда он появится — карточка уже подготовлена.", url: "", coverUrl: "", visual: "coral" },
+    { number: "01", name: "Skifia", category: "Лендинг / грузоперевозки", description: "Лендинг транспортных услуг для польской компании Skifia — информативный первый экран, структура услуг, онлайн-калькулятор стоимости и форма заявки. Поддержка 4 языков: PL / EN / UA / RU.", url: "https://skifia.online/", coverUrl: "/manus-storage/skifia-hero-real_8a891d4d.png", price: "Цена по запросу", availability: "available", visual: "violet" },
+    { number: "02", name: "Ваш второй кейс", category: "Бренд / промо-сайт", description: "Покажите характер работы: спокойный сервис, смелый продукт или личный бренд.", url: "", coverUrl: "", price: "Цена по запросу", availability: "available", visual: "lime" },
+    { number: "03", name: "Ваш третий кейс", category: "Интернет-проект / сервис", description: "Добавьте проект, когда он появится — карточка уже подготовлена.", url: "", coverUrl: "", price: "Цена по запросу", availability: "available", visual: "coral" },
   ],
   closing: {
     eyebrow: "Есть идея? Соберём её в рабочий сайт.",

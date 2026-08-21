@@ -100,4 +100,14 @@ describe("обновление бренда Skifia Art", () => {
     expect(stylesSource).toContain(".site-store-card__back { justify-content:space-between;");
     expect(stylesSource).toContain(".site-store-card:hover .site-store-card__flip { transform:rotateY(180deg);");
   });
+
+  it("показывает редактируемые цену и статус доступности в витрине сайтов", () => {
+    expect(homeSource).toContain('const isSold = work.availability === "sold";');
+    expect(homeSource).toContain('const availabilityLabel = isSold ? "Продан" : "В продаже";');
+    expect(homeSource).toContain("{work.price}");
+    expect(homeSource).toContain('site-store-card__status--${work.availability}');
+    expect(homeSource).toContain("Уже продан");
+    expect(stylesSource).toContain(".site-store-card__status--available { color:#c9ff9f;");
+    expect(stylesSource).toContain(".site-store-card__status--sold { color:#ffb1c6;");
+  });
 });

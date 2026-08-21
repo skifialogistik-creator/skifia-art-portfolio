@@ -122,4 +122,14 @@ describe("обновление бренда Skifia Art", () => {
     expect(inquiryDialogSource).toContain("Заявка на {work.name}");
     expect(stylesSource).toContain(".site-store-card__inquiry { border:1px solid");
   });
+
+  it("показывает редактируемые реквизиты, контакты и политику конфиденциальности в подвале", () => {
+    expect(homeSource).toContain("content.company.taxId");
+    expect(homeSource).toContain("content.company.whatsappUrl");
+    expect(homeSource).toContain("Политика конфиденциальности");
+    expect(homeSource).toContain("setPrivacyOpen(true)");
+    expect(homeSource).toContain("content.company.privacyPolicy");
+    expect(homeSource).toContain("footer-contact-link");
+    expect(stylesSource).toContain(".footer-contact-link { display:inline-flex;");
+  });
 });

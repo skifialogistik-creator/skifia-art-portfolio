@@ -66,11 +66,14 @@ export const siteContentSchema = z.object({
   }),
   company: z.object({
     companyName: z.string().trim().max(160),
+    taxId: z.string().trim().max(80),
     phone: z.string().trim().max(80),
     email: z.string().trim().max(320),
     telegramUrl: z.string().trim().max(500),
+    whatsappUrl: z.string().trim().max(500),
     address: z.string().trim().max(240),
     legalLine: z.string().trim().max(300),
+    privacyPolicy: z.string().trim().max(2000),
   }),
 });
 
@@ -130,14 +133,17 @@ export const defaultSiteContent: SiteContent = {
     label: "Заявка на сайт",
     title: "Расскажите о проекте так, чтобы он стал интереснее.",
     intro: "Не нужно подбирать технические слова. Ответьте как удобно: это поможет увидеть ваш характер, будущую структуру и сильные визуальные ходы.",
-    privacyNote: "Не указывайте пароли, платёжные данные и другие секреты.",
+    privacyNote: "Данные из формы используем только для связи с вами и подготовки предложения по перевозке. Администратор данных — Jednoosobowa działalność gospodarcza Serhii Zerniashenko, NIP 5732970568. Данные не передаются третьим лицам. Вы можете в любой момент попросить их удалить, написав нам на e-mail.",
   },
   company: {
-    companyName: "",
-    phone: "",
-    email: "",
+    companyName: "Jednoosobowa działalność gospodarcza Serhii Zerniashenko",
+    taxId: "NIP: 5732970568",
+    phone: "+48 451 641 095",
+    email: "skifia.logistik@gmail.com",
     telegramUrl: "https://t.me/Tristan_81",
+    whatsappUrl: "https://wa.me/48451641095",
     address: "",
     legalLine: "",
+    privacyPolicy: "Данные из формы используем только для связи с вами и подготовки предложения по перевозке. Администратор данных — Jednoosobowa działalność gospodarcza Serhii Zerniashenko, NIP 5732970568. Данные не передаются третьим лицам. Вы можете в любой момент попросить их удалить, написав нам на e-mail.",
   },
 };

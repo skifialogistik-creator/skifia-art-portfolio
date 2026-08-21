@@ -11,5 +11,5 @@ describe("Telegram bot credentials", () => {
     expect(payload.ok).toBe(true);
     expect(payload.result?.is_bot).toBe(true);
     expect(payload.result?.username).toBeTruthy();
-  });
+  }, 15_000);
 });

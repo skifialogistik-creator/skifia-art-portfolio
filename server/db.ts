@@ -1,6 +1,6 @@
 import { desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { BriefSubmissionPayload, InsertUser, briefSubmissions, siteContentSettings, siteInquiries, siteMediaAssets, users } from "../drizzle/schema";
+import { BriefSubmissionPayload, InsertUser, briefSubmissions, siteContentSettings, siteInquiries, siteMediaAssets, telegramNotificationSettings, users } from "../drizzle/schema";
 import { nanoid } from "nanoid";
 import { ENV } from './_core/env';
 import { defaultSiteContent, type SiteContent } from "../shared/siteContent";
@@ -127,6 +127,13 @@ export async function createSiteInquiry(input: SiteInquiryInput) {
   const publicId = `SI-${nanoid(9).toUpperCase()}`;
   await db.insert(siteInquiries).values({ publicId, ...input });
   return { publicId };
+}
+
+export async function getTelegramNotificationChatId() {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select({ chatId: telegramNotificationSettings.chatId }).from(telegramNotificationSettings).where(eq(telegramNotificationSettings.id, 1)).limit(1);
+  return result[0]?.chatId;
 }
 
 export async function getSiteContent(): Promise<SiteContent> {

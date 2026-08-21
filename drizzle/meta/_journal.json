@@ -29,6 +29,13 @@
       "when": 1787300418726,
       "tag": "0003_ambitious_chat",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1787319592815,
+      "tag": "0004_brown_shadowcat",
+      "breakpoints": true
     }
   ]
 }

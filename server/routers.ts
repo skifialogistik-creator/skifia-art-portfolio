@@ -1,13 +1,14 @@
 import { TRPCError } from "@trpc/server";
 import { COOKIE_NAME } from "@shared/const";
 import { z } from "zod";
-import { createBriefSubmission, createSiteInquiry, getBriefSubmissions, getMediaAssets, getSiteContent, getSiteInquiries, saveMediaAsset, saveSiteContent, updateBriefSubmissionStatus, updateSiteInquiryStatus, type MediaSlot } from "./db";
+import { createBriefSubmission, createSiteInquiry, getBriefSubmissions, getMediaAssets, getSiteContent, getSiteInquiries, getTelegramNotificationChatId, saveMediaAsset, saveSiteContent, updateBriefSubmissionStatus, updateSiteInquiryStatus, type MediaSlot } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { notifyOwner } from "./_core/notification";
 import { systemRouter } from "./_core/systemRouter";
 import { ownerProcedure, publicProcedure, router } from "./_core/trpc";
 import { siteContentSchema } from "../shared/siteContent";
 import { storagePut } from "./storage";
+import { notifyTelegramAboutSiteInquiry } from "./telegram";
 
 export const briefSubmissionSchema = z.object({
   fullName: z.string().trim().min(2).max(160),
@@ -112,6 +113,21 @@ export const appRouter = router({
         comment: input.comment,
       });
       void notifyOwner({ title: "Новая заявка на готовый сайт", content: `${site.name}: ${input.fullName}. Номер заявки ${inquiry.publicId}.` });
+      void (async () => {
+        try {
+          const chatId = await getTelegramNotificationChatId();
+          await notifyTelegramAboutSiteInquiry(chatId, {
+            publicId: inquiry.publicId,
+            siteName: site.name,
+            price: site.price,
+            fullName: input.fullName,
+            contact: input.contact,
+            comment: input.comment,
+          });
+        } catch (error) {
+          console.error("[Telegram] Notification preparation failed", error instanceof Error ? error.message : error);
+        }
+      })();
       return inquiry;
     }),
     list: ownerProcedure.query(() => getSiteInquiries()),

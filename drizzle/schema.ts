@@ -87,6 +87,13 @@ export const siteInquiries = mysqlTable("siteInquiries", {
 export type SiteInquiry = typeof siteInquiries.$inferSelect;
 export type InsertSiteInquiry = typeof siteInquiries.$inferInsert;
 
+/** Private delivery target for owner notifications. Never returned from public content routes. */
+export const telegramNotificationSettings = mysqlTable("telegramNotificationSettings", {
+  id: int("id").primaryKey(),
+  chatId: varchar("chatId", { length: 32 }).notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
 /** Singleton record with all owner-editable public website content. */
 export const siteContentSettings = mysqlTable("siteContentSettings", {
   id: int("id").primaryKey(),

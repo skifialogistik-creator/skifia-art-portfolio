@@ -232,6 +232,13 @@ export async function getSiteInquiries() {
   return db.select().from(siteInquiries).orderBy(desc(siteInquiries.createdAt)).limit(250);
 }
 
+export async function getSiteInquiryByPublicId(publicId: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(siteInquiries).where(eq(siteInquiries.publicId, publicId)).limit(1);
+  return result[0];
+}
+
 export async function updateSiteInquiryStatus(publicId: string, status: SiteInquiryStatus) {
   const db = await getDb();
   if (!db) throw new Error("База заявок временно недоступна. Повторите попытку позже.");

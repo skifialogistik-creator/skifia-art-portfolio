@@ -161,7 +161,7 @@ export default function AdminPanel() {
 
     setUploadingSlot(slotConfig.slot);
     try {
-      const response = await fetch(`/api/admin/media?slot=${encodeURIComponent(slotConfig.slot)}`, {
+      const response = await fetch(`/studio-control/api/admin/media?slot=${encodeURIComponent(slotConfig.slot)}`, {
         method: "PUT",
         credentials: "include",
         headers: {

@@ -78,9 +78,15 @@ export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const pathname = new URL(request.url).pathname;
 
-    if (pathname === "/api/trpc" || pathname.startsWith("/api/trpc/")) {
+    const trpcEndpoint = pathname === "/studio-control/api/trpc" || pathname.startsWith("/studio-control/api/trpc/")
+      ? "/studio-control/api/trpc"
+      : pathname === "/api/trpc" || pathname.startsWith("/api/trpc/")
+        ? "/api/trpc"
+        : null;
+
+    if (trpcEndpoint) {
       return fetchRequestHandler({
-        endpoint: "/api/trpc",
+        endpoint: trpcEndpoint,
         req: request,
         router: appRouter,
         createContext: async () => ({ request, env, executionCtx: ctx, user: await getAccessUser(request, env, ctx) }),
@@ -90,7 +96,7 @@ export default {
       });
     }
 
-    if (pathname === "/api/admin/media" && request.method === "PUT") return handleMediaUpload(request, env, ctx);
+    if ((pathname === "/api/admin/media" || pathname === "/studio-control/api/admin/media") && request.method === "PUT") return handleMediaUpload(request, env, ctx);
     if (pathname === "/api/telegram/webhook" && request.method === "POST") return handleTelegramWebhook(request, env);
     if (pathname.startsWith("/media/")) return handleMediaRead(request, env);
 

@@ -1,0 +1,38 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "skifia-art-portfolio",
+  "main": "./src/worker.ts",
+  "compatibility_date": "2026-08-25",
+  "workers_dev": true,
+  "preview_urls": true,
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 0.1
+  },
+  "assets": {
+    "directory": "../dist/public",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*", "/media/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "skifia-art-portfolio-data"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA"
+    }
+  ],
+  "secrets": {
+    "required": [
+      "OWNER_EMAIL",
+      "ACCESS_TEAM_DOMAIN",
+      "ACCESS_POLICY_AUD",
+      "TELEGRAM_BOT_TOKEN",
+      "TELEGRAM_WEBHOOK_SECRET"
+    ]
+  }
+}

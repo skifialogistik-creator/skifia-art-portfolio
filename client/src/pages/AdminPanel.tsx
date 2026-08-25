@@ -108,17 +108,14 @@ export default function AdminPanel() {
     onError: (error) => toast.error(error.message || "Не удалось сохранить изменения"),
   });
 
-  const uploadMutation = trpc.media.upload.useMutation({
-    onSuccess: async (asset) => {
-      const projectIndex = mediaSlots.find((slotConfig) => slotConfig.slot === asset.slot)?.projectIndex;
-      if (projectIndex !== undefined) {
-        setDraft((current) => projectIndex >= current.projects.length ? current : ({ ...current, projects: current.projects.map((project, index) => index === projectIndex ? { ...project, coverUrl: asset.url } : project) }));
-      }
-      await Promise.all([utils.media.list.invalidate(), utils.media.public.invalidate()]);
-      toast.success(projectIndex === undefined ? "Медиафайл сохранён и опубликован на сайте" : "Обложка загружена. Нажмите «Сохранить текст», чтобы привязать её к карточке.");
-    },
-    onError: (error) => toast.error(error.message || "Не удалось загрузить медиафайл"),
-  });
+  const onUploadedMedia = async (asset: { slot: MediaSlot; url: string }) => {
+    const projectIndex = mediaSlots.find((slotConfig) => slotConfig.slot === asset.slot)?.projectIndex;
+    if (projectIndex !== undefined) {
+      setDraft((current) => projectIndex >= current.projects.length ? current : ({ ...current, projects: current.projects.map((project, index) => index === projectIndex ? { ...project, coverUrl: asset.url } : project) }));
+    }
+    await Promise.all([utils.media.list.invalidate(), utils.media.public.invalidate()]);
+    toast.success(projectIndex === undefined ? "Медиафайл сохранён и опубликован на сайте" : "Обложка загружена. Нажмите «Сохранить текст», чтобы привязать её к карточке.");
+  };
 
   const updateStatusMutation = trpc.submissions.updateStatus.useMutation({
     onSuccess: async (updated) => {
@@ -164,9 +161,20 @@ export default function AdminPanel() {
 
     setUploadingSlot(slotConfig.slot);
     try {
-      await uploadMutation.mutateAsync({ slot: slotConfig.slot, fileName: file.name, mimeType: file.type, dataBase64: await toBase64(file) });
-    } catch {
-      // The mutation shows a human-readable toast.
+      const response = await fetch(`/api/admin/media?slot=${encodeURIComponent(slotConfig.slot)}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "content-type": file.type,
+          "x-file-name": encodeURIComponent(file.name),
+        },
+        body: file,
+      });
+      const asset = (await response.json().catch(() => null)) as { slot?: MediaSlot; url?: string; error?: string } | null;
+      if (!response.ok || !asset?.slot || !asset.url) throw new Error(asset?.error || "Не удалось загрузить медиафайл");
+      await onUploadedMedia({ slot: asset.slot, url: asset.url });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Не удалось загрузить медиафайл");
     } finally {
       setUploadingSlot(null);
       input.value = "";

@@ -158,8 +158,8 @@ export default function BriefApplication() {
   const setField = <K extends keyof BriefFormData>(key: K, value: BriefFormData[K]) => setData((current) => ({ ...current, [key]: value }));
 
   const validateStep = () => {
-    if (step === 0 && (!data.fullName.trim() || !data.companyName.trim() || !data.email.trim() || !data.phone.trim() || data.businessDescription.trim().length < 20 || data.offers.trim().length < 10 || !data.geography.trim())) return "Заполните контакты и кратко опишите бизнес, услуги и географию.";
-    if (step === 1 && (!data.audience.trim() || !data.goals.length || data.mainGoal.trim().length < 10)) return "Опишите аудиторию, выберите хотя бы одну задачу и главный результат сайта.";
+    if (step === 0 && (!data.fullName.trim() || !data.companyName.trim() || !data.email.trim() || !data.phone.trim() || !data.businessDescription.trim() || !data.offers.trim() || !data.geography.trim())) return "Заполните имя, компанию, e-mail, телефон, описание бизнеса, услуги и географию.";
+    if (step === 1 && (!data.audience.trim() || !data.goals.length || !data.mainGoal.trim())) return "Опишите аудиторию, выберите хотя бы одну задачу и главный результат сайта.";
     if (step === 2 && (!data.requiredPages.length || !data.contentReadiness)) return "Выберите хотя бы одну страницу и оцените готовность контента.";
     if (step === 3 && (!data.styleWords.length || !data.colorDirection)) return "Выберите характер и цветовое направление будущего сайта.";
     if (step === 4 && (!data.deadline.trim() || !data.budgetRange || !data.consent)) return "Укажите ориентир по сроку и бюджету, затем подтвердите согласие на обработку заявки.";

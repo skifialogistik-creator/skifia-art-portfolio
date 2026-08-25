@@ -18,21 +18,23 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "skifia-art-portfolio-data"
+      "database_name": "skifia-art-portfolio-data",
+      "database_id": "e6fe18da-f3a7-427b-adf4-b3566e8c17b7"
     }
   ],
   "r2_buckets": [
     {
-      "binding": "MEDIA"
+      "binding": "MEDIA",
+      "bucket_name": "skifia-art-portfolio-media"
     }
   ],
+  "vars": {
+    "OWNER_EMAIL": "skifia.logistik@gmail.com"
+  },
   "secrets": {
     "required": [
-      "OWNER_EMAIL",
       "ACCESS_TEAM_DOMAIN",
-      "ACCESS_POLICY_AUD",
-      "TELEGRAM_BOT_TOKEN",
-      "TELEGRAM_WEBHOOK_SECRET"
+      "ACCESS_POLICY_AUD"
     ]
   }
 }

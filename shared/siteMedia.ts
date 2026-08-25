@@ -1,7 +1,7 @@
 export const defaultPublicMediaUrls = {
-  avatar: "/manus-storage/creator-avatar_e02226c5.webp",
-  servicesVideo: "/manus-storage/chrome-kinetic-reference_69492557.mp4",
-  aboutVideo: "/manus-storage/sliding-portrait-reference_552e9a0d.mp4",
+  avatar: "",
+  servicesVideo: "",
+  aboutVideo: "",
 } as const;
 
 type PublicMediaAsset = {

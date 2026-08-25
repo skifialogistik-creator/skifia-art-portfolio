@@ -14,7 +14,8 @@
     "build:worker": "vite build",
     "check:worker": "wrangler deploy --dry-run --config cloudflare/wrangler.jsonc",
     "deploy:worker": "wrangler deploy --config cloudflare/wrangler.jsonc",
-    "migrate:d1": "wrangler d1 execute skifia-art-portfolio-data --remote --file=cloudflare/migrations/0001_initial.sql"
+    "migrate:d1": "wrangler d1 execute skifia-art-portfolio-data --remote --file=cloudflare/migrations/0001_initial.sql",
+    "seed:github-defaults": "tsx scripts/build-github-default-seed.ts && node scripts/build-d1-import.mjs cloudflare/backup/github-default-content.json cloudflare/backup/github-default-content.sql"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.693.0",

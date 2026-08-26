@@ -3,7 +3,7 @@ import { createRemoteJWKSet, jwtVerify } from "jose";
 import { nanoid } from "nanoid";
 import superjson from "superjson";
 import { z } from "zod";
-import { defaultSiteContent, type SiteContent } from "../../shared/siteContent";
+import { siteContentBundleSchema, type SiteContentBundle } from "../../shared/locales";
 import {
   createBriefSubmission,
   createSiteInquiry,
@@ -217,7 +217,8 @@ export const appRouter = router({
   }),
   siteInquiries: router({
     submit: publicProcedure.input(siteInquirySchema).mutation(async ({ ctx, input }) => {
-      const site = (await getSiteContent(ctx.env.DB)).projects.find((project) => project.number === input.siteNumber);
+      const contentBundle = await getSiteContent(ctx.env.DB);
+      const site = contentBundle.locales[contentBundle.defaultLocale].projects.find((project) => project.number === input.siteNumber);
       if (!site) throw new TRPCError({ code: "NOT_FOUND", message: "Этот сайт больше недоступен." });
       if (site.availability === "sold") throw new TRPCError({ code: "BAD_REQUEST", message: "Этот сайт уже продан. Выберите другой вариант." });
       const inquiry = await createSiteInquiry(ctx.env.DB, { siteNumber: site.number, siteName: site.name, price: site.price, fullName: input.fullName, contact: input.contact, comment: input.comment });
@@ -232,7 +233,7 @@ export const appRouter = router({
     public: publicProcedure.query(({ ctx }) => getSiteContent(ctx.env.DB)),
     admin: router({
       get: ownerProcedure.query(({ ctx }) => getSiteContent(ctx.env.DB)),
-      update: ownerProcedure.input(z.custom<SiteContent>()).mutation(({ ctx, input }) => saveSiteContent(ctx.env.DB, input)),
+      update: ownerProcedure.input(siteContentBundleSchema).mutation(({ ctx, input }) => saveSiteContent(ctx.env.DB, input as SiteContentBundle)),
     }),
   }),
   media: router({

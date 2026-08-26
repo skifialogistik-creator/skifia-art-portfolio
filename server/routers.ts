@@ -6,7 +6,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { notifyOwner } from "./_core/notification";
 import { systemRouter } from "./_core/systemRouter";
 import { ownerProcedure, publicProcedure, router } from "./_core/trpc";
-import { siteContentSchema } from "../shared/siteContent";
+import { siteContentBundleSchema } from "../shared/locales";
 import { storagePut } from "./storage";
 import { notifyTelegramAboutSiteInquiry } from "./telegram";
 
@@ -100,7 +100,8 @@ export const appRouter = router({
   }),
   siteInquiries: router({
     submit: publicProcedure.input(siteInquirySchema).mutation(async ({ input }) => {
-      const site = (await getSiteContent()).projects.find((project) => project.number === input.siteNumber);
+      const contentBundle = await getSiteContent();
+      const site = contentBundle.locales[contentBundle.defaultLocale].projects.find((project) => project.number === input.siteNumber);
       if (!site) throw new TRPCError({ code: "NOT_FOUND", message: "Этот сайт больше недоступен." });
       if (site.availability === "sold") throw new TRPCError({ code: "BAD_REQUEST", message: "Этот сайт уже продан. Выберите другой вариант." });
 
@@ -139,7 +140,7 @@ export const appRouter = router({
     public: publicProcedure.query(() => getSiteContent()),
     admin: router({
       get: ownerProcedure.query(() => getSiteContent()),
-      update: ownerProcedure.input(siteContentSchema).mutation(({ input }) => saveSiteContent(input)),
+      update: ownerProcedure.input(siteContentBundleSchema).mutation(({ input }) => saveSiteContent(input)),
     }),
   }),
   media: router({

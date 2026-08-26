@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-import { defaultSiteContent, type SiteContent } from "../../shared/siteContent";
+import { normalizeSiteContentBundle, type SiteContentBundle } from "../../shared/locales";
 
 export type SubmissionStatus = "received" | "reviewed" | "archived";
 export type MediaSlot =
@@ -176,32 +176,13 @@ export async function updateSiteInquiryStatus(db: D1Database, publicId: string, 
   return mapInquiry(row);
 }
 
-export async function getSiteContent(db: D1Database): Promise<SiteContent> {
+export async function getSiteContent(db: D1Database): Promise<SiteContentBundle> {
   const row = await db.prepare("SELECT content_json FROM site_content WHERE id = 1").first<{ content_json: string }>();
-  if (!row?.content_json) return defaultSiteContent;
-  const stored = parseJson<Partial<SiteContent>>(row.content_json);
-  return {
-    ...defaultSiteContent,
-    ...stored,
-    branding: { ...defaultSiteContent.branding, ...stored.branding },
-    hero: { ...defaultSiteContent.hero, ...stored.hero },
-    about: { ...defaultSiteContent.about, ...stored.about },
-    services: { ...defaultSiteContent.services, ...stored.services },
-    closing: { ...defaultSiteContent.closing, ...stored.closing },
-    brief: { ...defaultSiteContent.brief, ...stored.brief },
-    company: { ...defaultSiteContent.company, ...stored.company },
-    projects: stored.projects?.length
-      ? stored.projects.map((project) => ({
-          ...project,
-          coverUrl: project.coverUrl ?? "",
-          price: project.price ?? "Цена по запросу",
-          availability: project.availability ?? "available",
-        }))
-      : defaultSiteContent.projects,
-  };
+  if (!row?.content_json) return normalizeSiteContentBundle(undefined);
+  return normalizeSiteContentBundle(parseJson<unknown>(row.content_json));
 }
 
-export async function saveSiteContent(db: D1Database, content: SiteContent) {
+export async function saveSiteContent(db: D1Database, content: SiteContentBundle) {
   const updatedAt = now();
   await db
     .prepare(

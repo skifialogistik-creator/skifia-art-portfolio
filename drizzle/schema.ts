@@ -1,5 +1,5 @@
 import { int, json, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
-import type { SiteContent } from "../shared/siteContent";
+import type { SiteContentBundle } from "../shared/locales";
 
 /**
  * Core user table backing auth flow.
@@ -97,7 +97,7 @@ export const telegramNotificationSettings = mysqlTable("telegramNotificationSett
 /** Singleton record with all owner-editable public website content. */
 export const siteContentSettings = mysqlTable("siteContentSettings", {
   id: int("id").primaryKey(),
-  content: json("content").$type<SiteContent>().notNull(),
+  content: json("content").$type<SiteContentBundle>().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 

@@ -62,20 +62,21 @@ type BriefFormData = {
 };
 
 const initialData: BriefFormData = {
-  fullName: "", companyName: "", projectType: "Лендинг", projectStage: "Только идея", email: "", phone: "", contactPreference: "Telegram", leadSource: "Telegram", businessDescription: "", offers: "", audience: "", goals: [], mainGoal: "", whyChoose: "", geography: "", currentSiteState: "Нужен новый сайт", requiredPages: ["Главная", "Услуги", "Контакты"], features: ["Форма заявки"], styleWords: ["Спокойный"], references: "", colorDirection: "Доверьтесь вашему предложению", colorNotes: "", availableMaterials: [], contentReadiness: "Нужно помочь со структурой и текстом", deadline: "", budgetRange: "", comment: "", consent: false,
+  fullName: "", companyName: "", projectType: "Лендинг", projectStage: "Только идея", email: "", phone: "", contactPreference: "Telegram", leadSource: "Telegram", businessDescription: "", offers: "", audience: "", audienceTypes: [], primaryScenarios: [], goals: [], mainGoal: "", whyChoose: "", geography: "", currentSiteState: "Нужен новый сайт", requiredPages: ["Главная", "Услуги", "Контакты"], features: ["Форма заявки"], styleWords: ["Спокойный"], references: "", colorDirection: "Доверьтесь вашему предложению", colorNotes: "", availableMaterials: [], contentReadiness: "Нужно помочь со структурой и текстом", deadline: "", budgetRange: "", comment: "", consent: false,
 };
 
 function FieldLabel({ children, required = false }: { children: string; required?: boolean }) {
   return <span className="font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-[#7de5d6]">{children}{required && <span className="ml-1 text-[#ff6fae]">*</span>}</span>;
 }
 
-function ToggleGroup({ options, selected, onChange, minOne = false }: { options: string[]; selected: string[]; onChange: (next: string[]) => void; minOne?: boolean }) {
+function ToggleGroup({ options, selected, onChange, minOne = false }: { options: string[]; selected?: string[]; onChange: (next: string[]) => void; minOne?: boolean }) {
+  const safeSelected = Array.isArray(selected) ? selected : [];
   const toggle = (option: string) => {
-    const alreadySelected = selected.includes(option);
-    if (alreadySelected && minOne && selected.length === 1) return;
-    onChange(alreadySelected ? selected.filter((item) => item !== option) : [...selected, option]);
+    const alreadySelected = safeSelected.includes(option);
+    if (alreadySelected && minOne && safeSelected.length === 1) return;
+    onChange(alreadySelected ? safeSelected.filter((item) => item !== option) : [...safeSelected, option]);
   };
-  return <div className="flex flex-wrap gap-2">{options.map((option) => { const active = selected.includes(option); return <button key={option} type="button" aria-pressed={active} onClick={() => toggle(option)} className={`inline-flex items-center gap-2 border px-3 py-2 text-sm transition-all duration-200 active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#53e0cf] ${active ? "border-[#53e0cf] bg-[#6928c8] text-white shadow-[0_0_18px_rgba(255,104,223,.24)]" : "border-[#553875] bg-[#170c29] text-[#d7c6e8] hover:border-[#b761ff] hover:text-[#fff5ff]"}`}>{active && <Check className="h-3.5 w-3.5" />}{option}</button>; })}</div>;
+  return <div className="flex flex-wrap gap-2">{options.map((option) => { const active = safeSelected.includes(option); return <button key={option} type="button" aria-pressed={active} onClick={() => toggle(option)} className={`inline-flex items-center gap-2 border px-3 py-2 text-sm transition-all duration-200 active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#53e0cf] ${active ? "border-[#53e0cf] bg-[#6928c8] text-white shadow-[0_0_18px_rgba(255,104,223,.24)]" : "border-[#553875] bg-[#170c29] text-[#d7c6e8] hover:border-[#b761ff] hover:text-[#fff5ff]"}`}>{active && <Check className="h-3.5 w-3.5" />}{option}</button>; })}</div>;
 }
 
 function RadioOption({ checked, label, detail, onChange }: { checked: boolean; label: string; detail: string; onChange: () => void }) {

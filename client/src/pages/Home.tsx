@@ -7,9 +7,26 @@ import { trpc } from "@/lib/trpc";
 import { SiteInquiryDialog } from "@/components/SiteInquiryDialog";
 import type { SiteContent } from "@shared/siteContent";
 import { resolvePublicMediaUrls } from "@shared/siteMedia";
-import { getUiCopy, normalizeSiteContentBundle } from "@shared/locales";
+import { getUiCopy, localeOrder, normalizeSiteContentBundle, type Locale } from "@shared/locales";
 import { useLocale } from "@/contexts/LocaleContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+
+const seoCopy: Record<Locale, { title: string; description: string; ogLocale: string }> = {
+  uk: { title: "Skifia Art — дизайн і розробка сайтів", description: "Skifia Art створює виразні сайти: стратегія, дизайн, розробка та запуск під ключ.", ogLocale: "uk_UA" },
+  pl: { title: "Skifia Art — projektowanie i tworzenie stron", description: "Skifia Art tworzy charakterystyczne strony: strategia, design, development i uruchomienie pod klucz.", ogLocale: "pl_PL" },
+  ru: { title: "Skifia Art — дизайн и разработка сайтов", description: "Skifia Art создаёт выразительные сайты: стратегия, дизайн, разработка и запуск под ключ.", ogLocale: "ru_RU" },
+};
+
+function upsertMeta(attribute: "name" | "property", key: string, content: string) {
+  let element = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`);
+  if (!element) {
+    element = document.createElement("meta");
+    element.setAttribute(attribute, key);
+    document.head.appendChild(element);
+  }
+  element.content = content;
+}
+
 
 function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   const reduced = useReducedMotion();
@@ -48,7 +65,7 @@ function RotatingHeroPhrase({ fallback, phrases: phraseList }: { fallback: strin
 
   const activePhrase = reduced ? fallback : phrases[activeIndex] ?? fallback;
 
-  return <span className="relative inline-grid overflow-hidden align-baseline" aria-live="polite" aria-label={activePhrase}>
+  return <span className="hero-phrase relative inline-grid max-w-full overflow-hidden align-baseline" aria-live="polite" aria-label={activePhrase}>
     {phrases.map((phrase, index) => <span key={phrase} className="invisible col-start-1 row-start-1 whitespace-nowrap">{phrase}</span>)}
     <AnimatePresence initial={false} mode="wait">
       <motion.span key={activePhrase} initial={reduced ? false : { opacity: 0, y: "68%" }} animate={{ opacity: 1, y: 0 }} exit={reduced ? undefined : { opacity: 0, y: "-68%" }} transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }} className="col-start-1 row-start-1 whitespace-nowrap">
@@ -121,11 +138,57 @@ export default function Home() {
   const { data: mediaAssets } = trpc.media.public.useQuery(undefined, { staleTime: 60_000, refetchOnWindowFocus: false });
   const contentBundle = normalizeSiteContentBundle(storedContent);
   const content = contentBundle.locales[locale] ?? contentBundle.locales.ru;
+  const seo = seoCopy[locale];
+
+  useEffect(() => {
+    if (typeof document === "undefined" || typeof window === "undefined") return;
+    document.documentElement.lang = locale;
+    document.title = seo.title;
+    upsertMeta("name", "description", seo.description);
+    upsertMeta("name", "robots", "index,follow");
+    upsertMeta("property", "og:title", seo.title);
+    upsertMeta("property", "og:description", seo.description);
+    upsertMeta("property", "og:locale", seo.ogLocale);
+    upsertMeta("property", "og:type", "website");
+    upsertMeta("property", "og:site_name", "Skifia Art");
+    upsertMeta("name", "twitter:card", "summary");
+
+    const baseUrl = new URL(window.location.href);
+    baseUrl.searchParams.delete("lang");
+    baseUrl.searchParams.delete("cachecheck");
+    baseUrl.hash = "";
+    const canonicalUrl = new URL(baseUrl);
+    canonicalUrl.searchParams.set("lang", locale);
+    let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.rel = "canonical";
+      document.head.appendChild(canonical);
+    }
+    canonical.href = canonicalUrl.toString();
+    upsertMeta("property", "og:url", canonicalUrl.toString());
+
+    document.head.querySelectorAll('link[data-seo-hreflang="true"]').forEach((link) => link.remove());
+    localeOrder.forEach((alternateLocale) => {
+      const link = document.createElement("link");
+      link.rel = "alternate";
+      link.hreflang = alternateLocale;
+      link.href = `${baseUrl.toString()}?lang=${alternateLocale}`;
+      link.dataset.seoHreflang = "true";
+      document.head.appendChild(link);
+    });
+    const defaultLink = document.createElement("link");
+    defaultLink.rel = "alternate";
+    defaultLink.hreflang = "x-default";
+    defaultLink.href = baseUrl.toString();
+    defaultLink.dataset.seoHreflang = "true";
+    document.head.appendChild(defaultLink);
+  }, [locale, seo]);
+
   const { avatar: avatarUrl, servicesVideo: servicesVideoUrl, aboutVideo: aboutVideoUrl } = resolvePublicMediaUrls(mediaAssets);
   const heroPhrase = `${content.hero.lineTwo} ${content.hero.lineThree}`.trim();
   const rotatesHeroPhrase = ui.heroPhrases.length > 1;
 
-  useEffect(() => { document.title = content.branding.siteName; }, [content.branding.siteName]);
 
   useEffect(() => {
     const sectionId = window.location.hash.replace("#", "") || new URLSearchParams(window.location.search).get("section") || "";
@@ -138,7 +201,7 @@ export default function Home() {
     <header className="creator-nav absolute inset-x-0 top-0 z-30"><div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 pt-6 sm:px-10 sm:pt-8"><a href="#top" className="font-display text-sm font-black uppercase tracking-[-0.06em] text-[#d7e2ea]">{content.branding.siteName}</a><nav className="hidden items-center gap-8 font-medium uppercase tracking-wider text-[#d7e2ea] sm:flex sm:text-sm lg:gap-12 lg:text-lg"><a href="#about" className="transition-opacity hover:opacity-70">{content.branding.navAbout}</a><a href="#services" className="transition-opacity hover:opacity-70">{content.branding.navServices}</a><a href="#projects" className="transition-opacity hover:opacity-70">{content.branding.navProjects}</a><a href="#brief" className="transition-opacity hover:opacity-70">{content.branding.navContact}</a></nav><LanguageSwitcher compact /><button type="button" onClick={() => setMenuOpen((value) => !value)} aria-label={menuOpen ? ui.menuClose : ui.menuOpen} aria-expanded={menuOpen} className="grid h-10 w-10 place-items-center rounded-full border border-[#d7e2ea]/50 text-[#d7e2ea] sm:hidden">{menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}</button></div>{menuOpen && <nav className="mx-6 mt-4 flex flex-col gap-4 rounded-2xl border border-white/15 bg-[#161616]/95 p-5 font-mono text-xs uppercase tracking-[.14em] sm:hidden"><a href="#about" onClick={() => setMenuOpen(false)}>{content.branding.navAbout}</a><a href="#services" onClick={() => setMenuOpen(false)}>{content.branding.navServices}</a><a href="#projects" onClick={() => setMenuOpen(false)}>{content.branding.navProjects}</a><a href="#brief" onClick={() => setMenuOpen(false)} className="text-[#53e0cf]">{content.branding.navContact}</a></nav>}</header>
 
     <main>
-      <section id="top" className="relative flex min-h-screen flex-col overflow-hidden"><div className="hero-noise pointer-events-none absolute inset-0" /><div className="hero-glow pointer-events-none absolute left-1/2 top-[38%] h-[42vw] w-[42vw] min-h-64 min-w-64 -translate-x-1/2 -translate-y-1/2 rounded-full" /><MagneticAvatar src={avatarUrl} /><div className="pointer-events-none relative z-20 mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-6 pt-32 sm:px-10 sm:pt-40"><FadeIn className="pointer-events-auto overflow-hidden" delay={0.12}><h1 className="hero-heading whitespace-nowrap font-display text-[5.75vw] font-semibold leading-[.78] tracking-[-.07em] sm:text-[6.25vw] md:text-[6.5vw] lg:text-[7vw]">{content.hero.lineOne}<br />{rotatesHeroPhrase ? <RotatingHeroPhrase fallback={heroPhrase} phrases={ui.heroPhrases} /> : <>{content.hero.lineTwo}<br />{content.hero.lineThree}</>}</h1></FadeIn><div className="mt-auto flex justify-end pb-7 sm:pb-10"><div className="hero-sidecar pointer-events-auto relative z-20 flex max-w-[270px] flex-col items-end gap-5 text-right sm:max-w-[320px]"><FadeIn delay={0.3} className="hero-note">{content.hero.note}</FadeIn><FadeIn delay={0.45}><a href="#brief" className="contact-button">{content.hero.ctaLabel} <ArrowDownRight className="h-4 w-4" /></a></FadeIn></div></div></div></section>
+      <section id="top" className="relative flex min-h-screen flex-col overflow-hidden"><div className="hero-noise pointer-events-none absolute inset-0" /><div className="hero-glow pointer-events-none absolute left-1/2 top-[38%] h-[42vw] w-[42vw] min-h-64 min-w-64 -translate-x-1/2 -translate-y-1/2 rounded-full" /><MagneticAvatar src={avatarUrl} /><div className="pointer-events-none relative z-20 mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-6 pt-32 sm:px-10 sm:pt-40"><FadeIn className="pointer-events-auto overflow-hidden" delay={0.12}><h1 className="hero-heading whitespace-normal font-display text-[5.75vw] font-semibold leading-[.78] tracking-[-.07em] sm:text-[6.25vw] md:text-[6.5vw] lg:text-[7vw]">{content.hero.lineOne}<br />{rotatesHeroPhrase ? <RotatingHeroPhrase fallback={heroPhrase} phrases={ui.heroPhrases} /> : <>{content.hero.lineTwo}<br />{content.hero.lineThree}</>}</h1></FadeIn><div className="mt-auto flex justify-end pb-7 sm:pb-10"><div className="hero-sidecar pointer-events-auto relative z-20 flex max-w-[270px] flex-col items-end gap-5 text-right sm:max-w-[320px]"><FadeIn delay={0.3} className="hero-note">{content.hero.note}</FadeIn><FadeIn delay={0.45}><a href="#brief" className="contact-button">{content.hero.ctaLabel} <ArrowDownRight className="h-4 w-4" /></a></FadeIn></div></div></div></section>
 
       <section id="site-storefront" className="site-storefront relative overflow-hidden px-5 pb-16 pt-20 sm:px-8 sm:pb-24 sm:pt-28"><div className="site-storefront__glow pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full" /><div className="site-storefront__glow site-storefront__glow--right pointer-events-none absolute -right-24 bottom-0 h-80 w-80 rounded-full" /><div className="relative mx-auto max-w-6xl"><FadeIn><p className="font-mono text-[10px] uppercase tracking-[.18em] text-[#55c7bd]">{ui.storefrontKicker}</p><div className="mt-4 flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><h2 className="site-storefront__title">{ui.storefrontTitle}<br /><span>{ui.storefrontTitleAccent}</span></h2><p className="max-w-sm text-sm leading-6 text-[#b6afc0]">{ui.storefrontDescription}</p></div></FadeIn><div className="site-storefront__grid mt-10 sm:mt-14">{content.projects.map((work, index) => <StorefrontSiteCard key={`store-${work.number}-${index}`} work={work} index={index} onRequest={setInquiryWork} ui={ui} />)}</div></div></section>
 

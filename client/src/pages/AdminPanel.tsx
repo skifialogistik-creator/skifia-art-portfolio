@@ -96,7 +96,7 @@ export default function AdminPanel() {
   const submissionsQuery = trpc.submissions.list.useQuery(undefined, { enabled: isAdmin, retry: false, refetchOnWindowFocus: false });
   const siteInquiriesQuery = trpc.siteInquiries.list.useQuery(undefined, { enabled: isAdmin, retry: false, refetchOnWindowFocus: false });
   const [draft, setDraft] = useState<SiteContentBundle>(cloneDefaults);
-  const [selectedLocale, setSelectedLocale] = useState<Locale>("ru");
+  const [selectedLocale, setSelectedLocale] = useState<Locale>("uk");
   const [uploadingSlot, setUploadingSlot] = useState<MediaSlot | null>(null);
   const [selectedSubmission, setSelectedSubmission] = useState<BriefSubmission | null>(null);
   const utils = trpc.useUtils();

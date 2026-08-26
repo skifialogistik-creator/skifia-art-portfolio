@@ -16,12 +16,17 @@ export type MediaSlot =
 export type BriefSubmissionPayload = {
   fullName: string;
   companyName: string;
+  projectType: string;
+  projectStage: string;
   email: string;
   phone: string;
   contactPreference: string;
+  leadSource: string;
   businessDescription: string;
   offers: string;
   audience: string;
+  audienceTypes: string[];
+  primaryScenarios: string[];
   goals: string[];
   mainGoal: string;
   whyChoose: string;

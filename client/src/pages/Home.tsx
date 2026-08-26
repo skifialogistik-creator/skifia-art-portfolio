@@ -75,6 +75,12 @@ function RotatingHeroPhrase({ fallback, phrases: phraseList }: { fallback: strin
   </span>;
 }
 
+const previewCopy: Record<Locale, { eyebrow: string; title: string; avatarAlt: string; status: string }> = {
+  uk: { eyebrow: "Skifia Art / preview", title: "Відкриваємо сайт", avatarAlt: "Анімований 3D-портрет Skifia Art", status: "Відкриваємо сайт" },
+  pl: { eyebrow: "Skifia Art / podgląd", title: "Otwieramy stronę", avatarAlt: "Animowany portret 3D Skifia Art", status: "Otwieramy stronę" },
+  ru: { eyebrow: "Skifia Art / preview", title: "Открываем сайт", avatarAlt: "Анимированный 3D-портрет Skifia Art", status: "Открываем сайт" },
+};
+
 function PreviewLink({ href, previewSrc, className, children }: { href: string; previewSrc?: string; className?: string; children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const reduced = useReducedMotion();
@@ -83,13 +89,14 @@ function PreviewLink({ href, previewSrc, className, children }: { href: string; 
     event.preventDefault();
     event.stopPropagation();
     if (isLoading) return;
+    const copy = previewCopy[(document.documentElement.lang as Locale) || "uk"] ?? previewCopy.uk;
     setIsLoading(true);
     const nextWindow = window.open("about:blank", "_blank");
     if (nextWindow) {
       nextWindow.opener = null;
       const previewDocument = nextWindow.document;
-      previewDocument.title = "Skifia Art / preview";
-      previewDocument.head.innerHTML = `<meta name="viewport" content="width=device-width, initial-scale=1" /><style>html,body{margin:0;min-height:100%;background:#0c0c0c;color:#d7e2ea;font-family:Arial,sans-serif}body{display:grid;min-height:100vh;place-items:center;overflow:hidden}.preview{position:relative;display:grid;min-height:100vh;width:100%;place-items:center;overflow:hidden}.glow{position:absolute;height:45vw;width:45vw;min-height:260px;min-width:260px;border-radius:50%;background:radial-gradient(circle,rgba(45,212,191,.42),rgba(7,83,86,.18) 38%,transparent 72%);filter:blur(18px)}.content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}.avatar{height:230px;width:230px;object-fit:contain;filter:drop-shadow(0 20px 32px rgba(7,83,86,.75));animation:float 2.8s ease-in-out infinite}.eyebrow,.url{font:600 10px/1.4 monospace;letter-spacing:.16em;text-transform:uppercase}.eyebrow{color:#53e0cf}.content strong{font:600 30px/1.05 Georgia,serif;letter-spacing:-.04em}.url{max-width:80vw;overflow:hidden;color:#8c969e;text-overflow:ellipsis;white-space:nowrap}@keyframes float{50%{transform:translateY(-9px) scale(1.02)}}@media(prefers-reduced-motion:reduce){.avatar{animation:none}}</style>`;
+      previewDocument.title = copy.title;
+      previewDocument.head.innerHTML = `<meta name="viewport" content="width=device-width, initial-scale=1" /><style>html,body{margin:0;min-height:100%;background:#0c0c0c;color:#d7e2ea;font-family:Arial,sans-serif}body{display:grid;min-height:100vh;place-items:center;overflow:hidden}.preview{position:relative;display:grid;min-height:100vh;width:100%;place-items:center;overflow:hidden}.glow{position:absolute;height:45vw;width:45vw;min-height:260px;min-width:260px;border-radius:50%;background:radial-gradient(circle,rgba(45,212,191,.42),rgba(7,83,86,.18) 38%,transparent 72%);filter:blur(18px)}.content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}.avatar-wrap{position:relative;display:grid;height:230px;width:230px;place-items:center}.halo{position:absolute;height:72%;width:72%;border-radius:50%;background:radial-gradient(circle,rgba(83,224,207,.62),rgba(7,83,86,.22) 48%,transparent 74%);filter:blur(14px);animation:pulse 2.4s ease-in-out infinite}.avatar{position:relative;z-index:1;height:100%;width:100%;object-fit:contain;filter:drop-shadow(0 20px 32px rgba(7,83,86,.75));animation:float 2.8s ease-in-out infinite}.eyebrow,.url{font:600 10px/1.4 monospace;letter-spacing:.16em;text-transform:uppercase}.eyebrow{color:#53e0cf}.content strong{font:600 30px/1.05 Georgia,serif;letter-spacing:-.04em}.url{max-width:80vw;overflow:hidden;color:#8c969e;text-overflow:ellipsis;white-space:nowrap}@keyframes float{50%{transform:translateY(-9px) scale(1.02)}}@keyframes pulse{50%{opacity:.72;transform:scale(1.1)}}@media(prefers-reduced-motion:reduce){.avatar,.halo{animation:none}}</style>`;
       const preview = previewDocument.createElement("main");
       preview.className = "preview";
       const glow = previewDocument.createElement("div");
@@ -97,17 +104,22 @@ function PreviewLink({ href, previewSrc, className, children }: { href: string; 
       const content = previewDocument.createElement("div");
       content.className = "content";
       if (previewSrc) {
+        const avatarWrap = previewDocument.createElement("div");
+        avatarWrap.className = "avatar-wrap";
+        const halo = previewDocument.createElement("span");
+        halo.className = "halo";
         const image = previewDocument.createElement("img");
         image.className = "avatar";
-        image.alt = "3D-портрет Skifia Art";
+        image.alt = copy.avatarAlt;
         image.src = previewSrc;
-        content.appendChild(image);
+        avatarWrap.append(halo, image);
+        content.appendChild(avatarWrap);
       }
       const eyebrow = previewDocument.createElement("span");
       eyebrow.className = "eyebrow";
-      eyebrow.textContent = "Skifia Art / preview";
+      eyebrow.textContent = copy.eyebrow;
       const title = previewDocument.createElement("strong");
-      title.textContent = "Відкриваємо сайт";
+      title.textContent = copy.title;
       const url = previewDocument.createElement("span");
       url.className = "url";
       url.textContent = href.replace(/^https?:\/\//, "").replace(/\/$/, "");
@@ -121,7 +133,7 @@ function PreviewLink({ href, previewSrc, className, children }: { href: string; 
     }, reduced ? 180 : 900);
   };
 
-  return <><a href={href} target="_blank" rel="noreferrer" onClick={openWithPreview} className={className}>{children}</a>{isLoading && <span className="sr-only" role="status">Відкриваємо сайт</span>}</>;
+  return <><a href={href} target="_blank" rel="noreferrer" onClick={openWithPreview} className={className}>{children}</a>{isLoading && <span className="sr-only" role="status">{previewCopy[(document.documentElement.lang as Locale) || "uk"]?.status ?? previewCopy.uk.status}</span>}</>;
 }
 
 const cookieCopy: Record<Locale, { title: string; text: string; necessary: string; analytics: string }> = {
@@ -288,7 +300,7 @@ export default function Home() {
     <header className="creator-nav absolute inset-x-0 top-0 z-30"><div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 pt-6 sm:px-10 sm:pt-8"><a href="#top" className="font-display text-sm font-black uppercase tracking-[-0.06em] text-[#d7e2ea]">{content.branding.siteName}</a><nav className="hidden items-center gap-8 font-medium uppercase tracking-wider text-[#d7e2ea] sm:flex sm:text-sm lg:gap-12 lg:text-lg"><a href="#about" className="transition-opacity hover:opacity-70">{content.branding.navAbout}</a><a href="#services" className="transition-opacity hover:opacity-70">{content.branding.navServices}</a><a href="#projects" className="transition-opacity hover:opacity-70">{content.branding.navProjects}</a><a href="#brief" className="transition-opacity hover:opacity-70">{content.branding.navContact}</a></nav><LanguageSwitcher compact /><button type="button" onClick={() => setMenuOpen((value) => !value)} aria-label={menuOpen ? ui.menuClose : ui.menuOpen} aria-expanded={menuOpen} className="grid h-10 w-10 place-items-center rounded-full border border-[#d7e2ea]/50 text-[#d7e2ea] sm:hidden">{menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}</button></div>{menuOpen && <nav className="mx-6 mt-4 flex flex-col gap-4 rounded-2xl border border-white/15 bg-[#161616]/95 p-5 font-mono text-xs uppercase tracking-[.14em] sm:hidden"><a href="#about" onClick={() => setMenuOpen(false)}>{content.branding.navAbout}</a><a href="#services" onClick={() => setMenuOpen(false)}>{content.branding.navServices}</a><a href="#projects" onClick={() => setMenuOpen(false)}>{content.branding.navProjects}</a><a href="#brief" onClick={() => setMenuOpen(false)} className="text-[#53e0cf]">{content.branding.navContact}</a></nav>}</header>
 
     <main>
-      <section id="top" className="relative flex min-h-screen flex-col overflow-hidden"><div className="hero-noise pointer-events-none absolute inset-0" /><div className="hero-glow pointer-events-none absolute left-1/2 top-[38%] h-[42vw] w-[42vw] min-h-64 min-w-64 -translate-x-1/2 -translate-y-1/2 rounded-full" /><MagneticAvatar src={avatarUrl} /><div className="pointer-events-none relative z-20 mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-6 pt-24 sm:px-10 sm:pt-28 md:pt-28 lg:pt-32"><FadeIn className="pointer-events-auto overflow-hidden" delay={0.12}><h1 className="hero-heading whitespace-normal font-display text-[5.75vw] font-semibold leading-[.78] tracking-[-.07em] sm:text-[6.25vw] md:text-[6.5vw] lg:text-[7vw]"><span className="hero-greeting">{content.hero.lineOne}</span><br />{rotatesHeroPhrase ? <RotatingHeroPhrase fallback={heroPhrase} phrases={rotatingHeroWords} /> : content.hero.lineThree}</h1></FadeIn><div className="mt-auto flex justify-end pb-7 sm:pb-10"><div className="hero-sidecar pointer-events-auto relative z-20 flex max-w-[270px] flex-col items-end gap-5 text-right sm:max-w-[320px]"><FadeIn delay={0.3} className="hero-note">{content.hero.note}</FadeIn><FadeIn delay={0.45}><a href="#brief" className="contact-button">{content.hero.ctaLabel} <ArrowDownRight className="h-4 w-4" /></a></FadeIn></div></div></div></section>
+      <section id="top" className="relative flex min-h-screen flex-col overflow-hidden"><div className="hero-noise pointer-events-none absolute inset-0" /><div className="hero-glow pointer-events-none absolute left-1/2 top-[38%] h-[42vw] w-[42vw] min-h-64 min-w-64 -translate-x-1/2 -translate-y-1/2 rounded-full" /><MagneticAvatar src={avatarUrl} /><div className="pointer-events-none relative z-20 mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-6 pt-24 sm:px-10 sm:pt-28 md:pt-28 lg:pt-32"><FadeIn className="pointer-events-auto overflow-hidden" delay={0.12}><h1 className="hero-heading whitespace-normal font-display text-[5.75vw] font-semibold leading-[.78] tracking-[-.07em] sm:text-[6.25vw] md:text-[6.5vw] lg:text-[7vw]"><span className="hero-greeting">{content.hero.lineOne}</span><br /><span className="hero-subline"><span className="hero-verb">{content.hero.lineTwo}</span>{" "}{rotatesHeroPhrase ? <RotatingHeroPhrase fallback={heroPhrase} phrases={rotatingHeroWords} /> : content.hero.lineThree}</span></h1></FadeIn><div className="mt-auto flex justify-end pb-7 sm:pb-10"><div className="hero-sidecar pointer-events-auto relative z-20 flex max-w-[270px] flex-col items-end gap-5 text-right sm:max-w-[320px]"><FadeIn delay={0.3} className="hero-note">{content.hero.note}</FadeIn><FadeIn delay={0.45}><a href="#brief" className="contact-button">{content.hero.ctaLabel} <ArrowDownRight className="h-4 w-4" /></a></FadeIn></div></div></div></section>
 
       <section id="site-storefront" className="site-storefront relative overflow-hidden px-5 pb-16 pt-20 sm:px-8 sm:pb-24 sm:pt-28"><div className="site-storefront__glow pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full" /><div className="site-storefront__glow site-storefront__glow--right pointer-events-none absolute -right-24 bottom-0 h-80 w-80 rounded-full" /><div className="relative mx-auto max-w-6xl"><FadeIn><p className="font-mono text-[10px] uppercase tracking-[.18em] text-[#55c7bd]">{ui.storefrontKicker}</p><div className="mt-4 flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><h2 className="site-storefront__title">{ui.storefrontTitle}<br /><span>{ui.storefrontTitleAccent}</span></h2><p className="max-w-sm text-sm leading-6 text-[#b6afc0]">{ui.storefrontDescription}</p></div></FadeIn><div className="site-storefront__grid mt-10 sm:mt-14">{content.projects.map((work, index) => <StorefrontSiteCard key={`store-${work.number}-${index}`} work={work} index={index} onRequest={setInquiryWork} ui={ui} previewSrc={avatarUrl} />)}</div></div></section>
 

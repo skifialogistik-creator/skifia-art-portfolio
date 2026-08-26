@@ -174,3 +174,12 @@ select option:hover {
   .cookie-consent__actions { justify-content:stretch; }
   .cookie-consent__button { flex:1 1 0; min-height:2.65rem; }
 }
+
+/* Hero phrase: keep the greeting separate while allowing the verb and rotating word to wrap safely */
+.hero-greeting { display:inline-block; }
+.hero-subline { display:inline-flex; max-width:100%; align-items:baseline; flex-wrap:wrap; column-gap:.22em; row-gap:.08em; }
+.hero-verb,.hero-phrase { min-width:0; }
+@media (max-width:639px) {
+  .hero-subline { max-width:calc(100vw - 2rem); }
+  .hero-verb,.hero-phrase { display:block; }
+}

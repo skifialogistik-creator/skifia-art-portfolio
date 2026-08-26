@@ -1,10 +1,13 @@
 export { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 
 /**
- * Cloudflare Access enforces authentication at the protected owner route.
- * Keeping this helper preserves the existing UI call sites without retaining
- * a dependency on the former Manus OAuth portal.
+ * Start the Cloudflare Access login flow and return to the protected owner route.
+ * The Access application is configured for `studio-control*`, so the managed
+ * `/cdn-cgi/access/login` endpoint can issue the CF_Authorization cookie before
+ * the SPA loads the admin panel.
  */
 export const startLogin = () => {
-  window.location.assign("/studio-control");
+  const returnTo = `${window.location.origin}/studio-control`;
+  const loginUrl = `/cdn-cgi/access/login?redirect_url=${encodeURIComponent(returnTo)}`;
+  window.location.assign(loginUrl);
 };

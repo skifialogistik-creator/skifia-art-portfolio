@@ -130,3 +130,18 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 @media (prefers-reduced-motion:reduce) {
   .hero-phrase { overflow:visible; }
 }
+
+/* High-contrast native select menus */
+select {
+  color-scheme: dark;
+  accent-color: #53e0cf;
+}
+select option {
+  background-color: #170c29;
+  color: #fff7ff;
+}
+select option:checked,
+select option:hover {
+  background-color: #07545b;
+  color: #ffffff;
+}

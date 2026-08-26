@@ -2,7 +2,7 @@ import BriefApplication from "@/components/BriefApplication";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ArrowDownRight, ArrowUpRight, Compass, ExternalLink, Mail, Menu, MessageCircle, PanelsTopLeft, Phone, Rocket, Send, ShieldCheck, X } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { SiteInquiryDialog } from "@/components/SiteInquiryDialog";
 import { defaultSiteContent, type SiteContent } from "@shared/siteContent";
@@ -34,7 +34,7 @@ const heroRotatingPhrases = ["я создаю сайты", "я создаю бр
 
 function RotatingHeroPhrase({ fallback }: { fallback: string }) {
   const reduced = useReducedMotion();
-  const phrases = [fallback, ...heroRotatingPhrases.filter((phrase) => phrase !== fallback)];
+  const phrases = useMemo(() => [fallback, ...heroRotatingPhrases.filter((phrase) => phrase !== fallback)], [fallback]);
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
@@ -47,7 +47,7 @@ function RotatingHeroPhrase({ fallback }: { fallback: string }) {
 
   const activePhrase = reduced ? fallback : phrases[activeIndex] ?? fallback;
 
-  return <span className="relative inline-grid align-baseline" aria-live="polite" aria-label={activePhrase}>
+  return <span className="relative inline-grid overflow-hidden align-baseline" aria-live="polite" aria-label={activePhrase}>
     {phrases.map((phrase, index) => <span key={phrase} className="invisible col-start-1 row-start-1 whitespace-nowrap">{phrase}</span>)}
     <AnimatePresence initial={false} mode="wait">
       <motion.span key={activePhrase} initial={reduced ? false : { opacity: 0, y: "68%" }} animate={{ opacity: 1, y: 0 }} exit={reduced ? undefined : { opacity: 0, y: "-68%" }} transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }} className="col-start-1 row-start-1 whitespace-nowrap">
@@ -118,6 +118,8 @@ export default function Home() {
   const { data: mediaAssets } = trpc.media.public.useQuery(undefined, { staleTime: 60_000, refetchOnWindowFocus: false });
   const content = storedContent ?? defaultSiteContent;
   const { avatar: avatarUrl, servicesVideo: servicesVideoUrl, aboutVideo: aboutVideoUrl } = resolvePublicMediaUrls(mediaAssets);
+  const heroPhrase = `${content.hero.lineTwo} ${content.hero.lineThree}`.trim();
+  const rotatesHeroPhrase = content.hero.lineTwo.includes("создаю") || content.hero.lineThree.includes("создаю");
 
   useEffect(() => { document.title = content.branding.siteName; }, [content.branding.siteName]);
 
@@ -132,7 +134,7 @@ export default function Home() {
     <header className="creator-nav absolute inset-x-0 top-0 z-30"><div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 pt-6 sm:px-10 sm:pt-8"><a href="#top" className="font-display text-sm font-black uppercase tracking-[-0.06em] text-[#d7e2ea]">{content.branding.siteName}</a><nav className="hidden items-center gap-8 font-medium uppercase tracking-wider text-[#d7e2ea] sm:flex sm:text-sm lg:gap-12 lg:text-lg"><a href="#about" className="transition-opacity hover:opacity-70">{content.branding.navAbout}</a><a href="#services" className="transition-opacity hover:opacity-70">{content.branding.navServices}</a><a href="#projects" className="transition-opacity hover:opacity-70">{content.branding.navProjects}</a><a href="#brief" className="transition-opacity hover:opacity-70">{content.branding.navContact}</a></nav><button type="button" onClick={() => setMenuOpen((value) => !value)} aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"} aria-expanded={menuOpen} className="grid h-10 w-10 place-items-center rounded-full border border-[#d7e2ea]/50 text-[#d7e2ea] sm:hidden">{menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}</button></div>{menuOpen && <nav className="mx-6 mt-4 flex flex-col gap-4 rounded-2xl border border-white/15 bg-[#161616]/95 p-5 font-mono text-xs uppercase tracking-[.14em] sm:hidden"><a href="#about" onClick={() => setMenuOpen(false)}>{content.branding.navAbout}</a><a href="#services" onClick={() => setMenuOpen(false)}>{content.branding.navServices}</a><a href="#projects" onClick={() => setMenuOpen(false)}>{content.branding.navProjects}</a><a href="#brief" onClick={() => setMenuOpen(false)} className="text-[#53e0cf]">{content.branding.navContact}</a></nav>}</header>
 
     <main>
-      <section id="top" className="relative flex min-h-screen flex-col overflow-hidden"><div className="hero-noise pointer-events-none absolute inset-0" /><div className="hero-glow pointer-events-none absolute left-1/2 top-[38%] h-[42vw] w-[42vw] min-h-64 min-w-64 -translate-x-1/2 -translate-y-1/2 rounded-full" /><MagneticAvatar src={avatarUrl} /><div className="pointer-events-none relative z-20 mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-6 pt-32 sm:px-10 sm:pt-40"><FadeIn className="pointer-events-auto overflow-hidden" delay={0.12}><h1 className="hero-heading whitespace-nowrap font-display text-[5.75vw] font-semibold leading-[.78] tracking-[-.07em] sm:text-[6.25vw] md:text-[6.5vw] lg:text-[7vw]">{content.hero.lineOne}<br />{content.hero.lineTwo.includes("создаю") ? <RotatingHeroPhrase fallback={content.hero.lineTwo} /> : content.hero.lineTwo}<br />{content.hero.lineThree}</h1></FadeIn><div className="mt-auto flex justify-end pb-7 sm:pb-10"><div className="hero-sidecar pointer-events-auto relative z-20 flex max-w-[270px] flex-col items-end gap-5 text-right sm:max-w-[320px]"><FadeIn delay={0.3} className="hero-note">{content.hero.note}</FadeIn><FadeIn delay={0.45}><a href="#brief" className="contact-button">{content.hero.ctaLabel} <ArrowDownRight className="h-4 w-4" /></a></FadeIn></div></div></div></section>
+      <section id="top" className="relative flex min-h-screen flex-col overflow-hidden"><div className="hero-noise pointer-events-none absolute inset-0" /><div className="hero-glow pointer-events-none absolute left-1/2 top-[38%] h-[42vw] w-[42vw] min-h-64 min-w-64 -translate-x-1/2 -translate-y-1/2 rounded-full" /><MagneticAvatar src={avatarUrl} /><div className="pointer-events-none relative z-20 mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-6 pt-32 sm:px-10 sm:pt-40"><FadeIn className="pointer-events-auto overflow-hidden" delay={0.12}><h1 className="hero-heading whitespace-nowrap font-display text-[5.75vw] font-semibold leading-[.78] tracking-[-.07em] sm:text-[6.25vw] md:text-[6.5vw] lg:text-[7vw]">{content.hero.lineOne}<br />{rotatesHeroPhrase ? <RotatingHeroPhrase fallback={heroPhrase} /> : <>{content.hero.lineTwo}<br />{content.hero.lineThree}</>}</h1></FadeIn><div className="mt-auto flex justify-end pb-7 sm:pb-10"><div className="hero-sidecar pointer-events-auto relative z-20 flex max-w-[270px] flex-col items-end gap-5 text-right sm:max-w-[320px]"><FadeIn delay={0.3} className="hero-note">{content.hero.note}</FadeIn><FadeIn delay={0.45}><a href="#brief" className="contact-button">{content.hero.ctaLabel} <ArrowDownRight className="h-4 w-4" /></a></FadeIn></div></div></div></section>
 
       <section id="site-storefront" className="site-storefront relative overflow-hidden px-5 pb-16 pt-20 sm:px-8 sm:pb-24 sm:pt-28"><div className="site-storefront__glow pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full" /><div className="site-storefront__glow site-storefront__glow--right pointer-events-none absolute -right-24 bottom-0 h-80 w-80 rounded-full" /><div className="relative mx-auto max-w-6xl"><FadeIn><p className="font-mono text-[10px] uppercase tracking-[.18em] text-[#55c7bd]">готовые решения / в наличии</p><div className="mt-4 flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><h2 className="site-storefront__title">Сайты<br /><span>в наличии.</span></h2><p className="max-w-sm text-sm leading-6 text-[#b6afc0]">Выберите понравившуюся основу, откройте сайт и оставьте заявку. Карточка переворачивается, чтобы показать детали и перейти к просмотру.</p></div></FadeIn><div className="site-storefront__grid mt-10 sm:mt-14">{content.projects.map((work, index) => <StorefrontSiteCard key={`store-${work.number}-${index}`} work={work} index={index} onRequest={setInquiryWork} />)}</div></div></section>
 

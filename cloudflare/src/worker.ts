@@ -69,6 +69,8 @@ async function jsonOrSeoAsset(request: Request, env: Env) {
     const headers = new Headers(asset.headers);
     headers.delete("content-length");
     headers.delete("etag");
+    headers.set("cache-control", "no-store");
+    headers.set("vary", "Accept");
     return new Response(rewritePublicSeoHtml(await asset.text(), getPublicLocale(url)), { status: asset.status, headers });
   }
   return null;

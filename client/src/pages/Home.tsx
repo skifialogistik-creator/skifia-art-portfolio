@@ -124,6 +124,43 @@ function PreviewLink({ href, previewSrc, className, children }: { href: string; 
   return <><a href={href} target="_blank" rel="noreferrer" onClick={openWithPreview} className={className}>{children}</a>{isLoading && <span className="sr-only" role="status">Відкриваємо сайт</span>}</>;
 }
 
+const cookieCopy: Record<Locale, { title: string; text: string; necessary: string; analytics: string }> = {
+  uk: { title: "Налаштування cookies", text: "Ми використовуємо необхідні дані для роботи сайту. Аналітика підключається лише за вашою згодою.", necessary: "Лише необхідні", analytics: "Дозволити аналітику" },
+  pl: { title: "Ustawienia cookies", text: "Używamy niezbędnych danych do działania strony. Analityka jest włączana tylko za Twoją zgodą.", necessary: "Tylko niezbędne", analytics: "Zezwól na analitykę" },
+  ru: { title: "Настройки cookies", text: "Мы используем необходимые данные для работы сайта. Аналитика подключается только с вашего согласия.", necessary: "Только необходимые", analytics: "Разрешить аналитику" },
+};
+
+function CookieConsent() {
+  const { locale } = useLocale();
+  const copy = cookieCopy[locale];
+  const [visible, setVisible] = useState(false);
+  const analyticsEndpoint = import.meta.env.VITE_ANALYTICS_ENDPOINT as string | undefined;
+  const analyticsWebsiteId = import.meta.env.VITE_ANALYTICS_WEBSITE_ID as string | undefined;
+  const analyticsAvailable = Boolean(analyticsEndpoint && analyticsWebsiteId);
+
+  useEffect(() => {
+    if (!analyticsEndpoint || !analyticsWebsiteId) return;
+    const choice = window.localStorage.getItem("skifia-cookie-consent");
+    if (!choice) setVisible(true);
+    if (choice === "analytics") {
+      const script = document.createElement("script");
+      script.defer = true;
+      script.src = `${analyticsEndpoint}/umami`;
+      script.dataset.websiteId = analyticsWebsiteId;
+      document.head.appendChild(script);
+      return () => script.remove();
+    }
+  }, [analyticsAvailable, analyticsEndpoint, analyticsWebsiteId]);
+
+  if (!visible || !analyticsAvailable) return null;
+  const choose = (value: "necessary" | "analytics") => {
+    window.localStorage.setItem("skifia-cookie-consent", value);
+    setVisible(false);
+    if (value === "analytics") window.location.reload();
+  };
+  return <aside className="cookie-consent" role="dialog" aria-labelledby="cookie-consent-title" aria-describedby="cookie-consent-text"><div><h2 id="cookie-consent-title">{copy.title}</h2><p id="cookie-consent-text">{copy.text}</p></div><div className="cookie-consent__actions"><button type="button" onClick={() => choose("necessary")} className="cookie-consent__button cookie-consent__button--secondary">{copy.necessary}</button><button type="button" onClick={() => choose("analytics")} className="cookie-consent__button">{copy.analytics}</button></div></aside>;
+}
+
 function AnimatedText({ text }: { text: string }) {
   return <p className="about-reveal mx-auto max-w-2xl text-center text-[clamp(1.08rem,2vw,1.45rem)] font-medium leading-relaxed text-[#d7e2ea]">{Array.from(text).map((character, index) => <motion.span key={`${character}-${index}`} initial={{ opacity: 0.22 }} whileInView={{ opacity: 1 }} viewport={{ once: true, amount: 0.4 }} transition={{ duration: 0.35, delay: Math.min(index * 0.012, 0.6) }}>{character}</motion.span>)}</p>;
 }
@@ -235,8 +272,9 @@ export default function Home() {
   }, [locale, seo]);
 
   const { avatar: avatarUrl, servicesVideo: servicesVideoUrl, aboutVideo: aboutVideoUrl } = resolvePublicMediaUrls(mediaAssets);
-  const heroPhrase = `${content.hero.lineTwo} ${content.hero.lineThree}`.trim();
-  const rotatesHeroPhrase = ui.heroPhrases.length > 1;
+  const heroPhrase = content.hero.lineThree.trim();
+  const rotatingHeroWords = ui.heroPhrases.map((phrase) => phrase.replace(/^\S+\s+/, "").trim()).filter(Boolean);
+  const rotatesHeroPhrase = rotatingHeroWords.length > 1;
 
 
   useEffect(() => {
@@ -250,7 +288,7 @@ export default function Home() {
     <header className="creator-nav absolute inset-x-0 top-0 z-30"><div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 pt-6 sm:px-10 sm:pt-8"><a href="#top" className="font-display text-sm font-black uppercase tracking-[-0.06em] text-[#d7e2ea]">{content.branding.siteName}</a><nav className="hidden items-center gap-8 font-medium uppercase tracking-wider text-[#d7e2ea] sm:flex sm:text-sm lg:gap-12 lg:text-lg"><a href="#about" className="transition-opacity hover:opacity-70">{content.branding.navAbout}</a><a href="#services" className="transition-opacity hover:opacity-70">{content.branding.navServices}</a><a href="#projects" className="transition-opacity hover:opacity-70">{content.branding.navProjects}</a><a href="#brief" className="transition-opacity hover:opacity-70">{content.branding.navContact}</a></nav><LanguageSwitcher compact /><button type="button" onClick={() => setMenuOpen((value) => !value)} aria-label={menuOpen ? ui.menuClose : ui.menuOpen} aria-expanded={menuOpen} className="grid h-10 w-10 place-items-center rounded-full border border-[#d7e2ea]/50 text-[#d7e2ea] sm:hidden">{menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}</button></div>{menuOpen && <nav className="mx-6 mt-4 flex flex-col gap-4 rounded-2xl border border-white/15 bg-[#161616]/95 p-5 font-mono text-xs uppercase tracking-[.14em] sm:hidden"><a href="#about" onClick={() => setMenuOpen(false)}>{content.branding.navAbout}</a><a href="#services" onClick={() => setMenuOpen(false)}>{content.branding.navServices}</a><a href="#projects" onClick={() => setMenuOpen(false)}>{content.branding.navProjects}</a><a href="#brief" onClick={() => setMenuOpen(false)} className="text-[#53e0cf]">{content.branding.navContact}</a></nav>}</header>
 
     <main>
-      <section id="top" className="relative flex min-h-screen flex-col overflow-hidden"><div className="hero-noise pointer-events-none absolute inset-0" /><div className="hero-glow pointer-events-none absolute left-1/2 top-[38%] h-[42vw] w-[42vw] min-h-64 min-w-64 -translate-x-1/2 -translate-y-1/2 rounded-full" /><MagneticAvatar src={avatarUrl} /><div className="pointer-events-none relative z-20 mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-6 pt-32 sm:px-10 sm:pt-40"><FadeIn className="pointer-events-auto overflow-hidden" delay={0.12}><h1 className="hero-heading whitespace-normal font-display text-[5.75vw] font-semibold leading-[.78] tracking-[-.07em] sm:text-[6.25vw] md:text-[6.5vw] lg:text-[7vw]">{content.hero.lineOne}<br />{rotatesHeroPhrase ? <RotatingHeroPhrase fallback={heroPhrase} phrases={ui.heroPhrases} /> : <>{content.hero.lineTwo}<br />{content.hero.lineThree}</>}</h1></FadeIn><div className="mt-auto flex justify-end pb-7 sm:pb-10"><div className="hero-sidecar pointer-events-auto relative z-20 flex max-w-[270px] flex-col items-end gap-5 text-right sm:max-w-[320px]"><FadeIn delay={0.3} className="hero-note">{content.hero.note}</FadeIn><FadeIn delay={0.45}><a href="#brief" className="contact-button">{content.hero.ctaLabel} <ArrowDownRight className="h-4 w-4" /></a></FadeIn></div></div></div></section>
+      <section id="top" className="relative flex min-h-screen flex-col overflow-hidden"><div className="hero-noise pointer-events-none absolute inset-0" /><div className="hero-glow pointer-events-none absolute left-1/2 top-[38%] h-[42vw] w-[42vw] min-h-64 min-w-64 -translate-x-1/2 -translate-y-1/2 rounded-full" /><MagneticAvatar src={avatarUrl} /><div className="pointer-events-none relative z-20 mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-6 pt-32 sm:px-10 sm:pt-40"><FadeIn className="pointer-events-auto overflow-hidden" delay={0.12}><h1 className="hero-heading whitespace-normal font-display text-[5.75vw] font-semibold leading-[.78] tracking-[-.07em] sm:text-[6.25vw] md:text-[6.5vw] lg:text-[7vw]"><span className="hero-intro">{content.hero.lineOne} {content.hero.lineTwo}</span><br />{rotatesHeroPhrase ? <RotatingHeroPhrase fallback={heroPhrase} phrases={rotatingHeroWords} /> : content.hero.lineThree}</h1></FadeIn><div className="mt-auto flex justify-end pb-7 sm:pb-10"><div className="hero-sidecar pointer-events-auto relative z-20 flex max-w-[270px] flex-col items-end gap-5 text-right sm:max-w-[320px]"><FadeIn delay={0.3} className="hero-note">{content.hero.note}</FadeIn><FadeIn delay={0.45}><a href="#brief" className="contact-button">{content.hero.ctaLabel} <ArrowDownRight className="h-4 w-4" /></a></FadeIn></div></div></div></section>
 
       <section id="site-storefront" className="site-storefront relative overflow-hidden px-5 pb-16 pt-20 sm:px-8 sm:pb-24 sm:pt-28"><div className="site-storefront__glow pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full" /><div className="site-storefront__glow site-storefront__glow--right pointer-events-none absolute -right-24 bottom-0 h-80 w-80 rounded-full" /><div className="relative mx-auto max-w-6xl"><FadeIn><p className="font-mono text-[10px] uppercase tracking-[.18em] text-[#55c7bd]">{ui.storefrontKicker}</p><div className="mt-4 flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><h2 className="site-storefront__title">{ui.storefrontTitle}<br /><span>{ui.storefrontTitleAccent}</span></h2><p className="max-w-sm text-sm leading-6 text-[#b6afc0]">{ui.storefrontDescription}</p></div></FadeIn><div className="site-storefront__grid mt-10 sm:mt-14">{content.projects.map((work, index) => <StorefrontSiteCard key={`store-${work.number}-${index}`} work={work} index={index} onRequest={setInquiryWork} ui={ui} previewSrc={avatarUrl} />)}</div></div></section>
 
@@ -267,6 +305,7 @@ export default function Home() {
     </main>
 
     <footer className="border-t border-[#d7e2ea]/10 bg-[#0c0c0c] px-6 py-9 sm:px-10"><div className="mx-auto grid max-w-[1600px] gap-8 lg:grid-cols-[1.2fr_.8fr_auto] lg:items-end"><div><p className="font-display text-sm font-black uppercase tracking-[-.06em] text-[#d7e2ea]">{content.branding.siteName}</p><p className="mt-2 max-w-md text-xs leading-5 text-[#8c969e]">{content.branding.footerNote}</p><div className="mt-4 space-y-1.5 text-xs leading-5 text-[#c9c1d1]"><p>{content.company.companyName}</p>{content.company.taxId && <p>{content.company.taxId}</p>}{content.company.legalLine && <p className="text-[#8c8494]">{content.company.legalLine}</p>}</div></div><div><p className="font-mono text-[9px] font-semibold uppercase tracking-[.14em] text-[#ad9db9]">{ui.contacts}</p><div className="mt-3 flex flex-wrap gap-2"><a href={`tel:${content.company.phone.replace(/[^+\d]/g, "")}`} className="footer-contact-link"><Phone className="h-3.5 w-3.5" />{content.company.phone}</a><a href={`mailto:${content.company.email}`} className="footer-contact-link"><Mail className="h-3.5 w-3.5" />{ui.emailLabel}</a>{content.company.whatsappUrl && <a href={content.company.whatsappUrl} target="_blank" rel="noreferrer" className="footer-contact-link"><MessageCircle className="h-3.5 w-3.5" />{ui.whatsappLabel}</a>}{content.company.telegramUrl && <a href={content.company.telegramUrl} target="_blank" rel="noreferrer" className="footer-contact-link"><Send className="h-3.5 w-3.5" />{ui.telegramLabel}</a>}</div><button type="button" onClick={() => setPrivacyOpen(true)} className="mt-4 inline-flex items-center gap-2 text-xs text-[#9deee2] transition hover:text-white"><ShieldCheck className="h-3.5 w-3.5" />{ui.privacy}</button></div><p className="font-mono text-[9px] uppercase tracking-[.14em] text-[#8c969e]">© {new Date().getFullYear()} / {content.branding.siteName}</p></div></footer>
+    <CookieConsent />
     <Dialog open={privacyOpen} onOpenChange={setPrivacyOpen}><DialogContent className="max-h-[calc(100svh-2rem)] max-w-2xl overflow-y-auto border-white/10 bg-[#121015] p-5 text-white sm:p-7"><DialogHeader><DialogTitle className="font-display text-3xl font-semibold tracking-[-.06em]">{ui.privacyTitle}</DialogTitle><DialogDescription className="text-[#aaa2b6]">{ui.privacyDescription}</DialogDescription></DialogHeader><div className="mt-4 space-y-5 text-sm leading-7 text-[#ddd5e4]"><p>{content.company.privacyPolicy}</p><div className="rounded-2xl border border-white/10 bg-[#19161e] p-4"><p className="font-mono text-[9px] font-semibold uppercase tracking-[.14em] text-[#a79eaf]">{ui.privacyAdmin}</p><p className="mt-2 text-white">{content.company.companyName}</p>{content.company.taxId && <p className="text-[#c8bfce]">{content.company.taxId}</p>}<a href={`mailto:${content.company.email}`} className="mt-3 inline-flex text-[#8de9dc] hover:text-white">{content.company.email}</a></div></div></DialogContent></Dialog>
   </div>;
 }

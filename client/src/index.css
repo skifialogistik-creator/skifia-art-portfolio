@@ -208,3 +208,10 @@ select option:hover {
 .project-portfolio-card__actions { display:flex; flex-wrap:wrap; gap:.6rem; margin-top:auto; padding-top:2rem; }
 .project-portfolio-card__actions .live-button { display:inline-flex; min-height:42px; align-items:center; gap:.55rem; }
 @media (max-width:639px) { .project-portfolio-card { margin-top:1.25rem; border-radius:1.35rem; }.project-portfolio-card__topline { padding:.85rem 1rem; font-size:7px; }.project-portfolio-card__body { grid-template-columns:1fr; gap:.2rem; padding:0 .65rem .65rem; }.project-portfolio-card__visual { aspect-ratio:4 / 3; border-radius:1rem; }.project-portfolio-card__info { padding:1.1rem .4rem .8rem; }.project-portfolio-card__info h3 { font-size:clamp(2.2rem,12vw,3.6rem); }.project-portfolio-card__description { margin-top:.9rem; font-size:.85rem; line-height:1.55; }.project-portfolio-card__actions { padding-top:1.15rem; } }
+
+
+/* Large portfolio cases with sequential scroll-over stacking */
+.project-portfolio-stack { position:relative; padding-bottom:5rem; }
+.project-portfolio-card { position:sticky; top:calc(74px + var(--stack-offset, 0px)); min-height:clamp(31rem,68vh,48rem); margin-top:2.5rem; }
+.project-portfolio-card:first-child { margin-top:0; }
+@media (max-width:639px) { .project-portfolio-stack { padding-bottom:3rem; }.project-portfolio-card { top:calc(66px + var(--stack-offset, 0px)); min-height:0; margin-top:1.4rem; }.project-portfolio-card:first-child { margin-top:0; } }

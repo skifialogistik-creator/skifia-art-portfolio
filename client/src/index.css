@@ -115,11 +115,12 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
   .hero-phrase > span { min-width:0; max-width:100%; overflow-wrap:anywhere; white-space:normal !important; }
   .hero-subline { display:flex; max-width:calc(100vw - 2rem); flex-direction:column; align-items:flex-start; gap:.08em; }
   .hero-verb { display:block; line-height:.92; }
-  .hero-phrase { display:inline-grid; width:100%; min-height:1em; overflow:hidden; line-height:.92; vertical-align:top; }
-  .hero-phrase > span { display:block; width:100%; grid-column:1; grid-row:1; }
+  .hero-phrase { display:block; width:100%; min-height:0; overflow:hidden; line-height:.92; vertical-align:top; }
+  .hero-phrase > span.invisible { display:none !important; }
+  .hero-phrase > span:not(.invisible) { display:block; width:100%; }
   .avatar-stage { bottom:-8%; height:44%; width:68vw; max-width:300px; }
-  .hero-sidecar-row { margin-top:2rem; justify-content:flex-start; }
-  .hero-sidecar { top:0; right:auto; max-width:250px; align-items:flex-start; text-align:left; }
+  .hero-sidecar-row { flex:0 0 auto; margin-top:2rem !important; justify-content:flex-start; }
+  .hero-sidecar { position:relative; top:auto; right:auto; max-width:250px; align-items:flex-start; text-align:left; }
   .hero-note { max-width:250px; }
   .services-showcase { min-height:auto; }
   .services-word { max-width:100%; }

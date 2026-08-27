@@ -115,8 +115,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
   .hero-phrase > span { min-width:0; max-width:100%; overflow-wrap:anywhere; white-space:normal !important; }
   .hero-subline { display:flex; max-width:calc(100vw - 2rem); flex-direction:column; align-items:flex-start; gap:.08em; }
   .hero-verb { display:block; line-height:.92; }
-  .hero-phrase { display:block; width:100%; line-height:.92; }
-  .hero-phrase > span { display:block; width:100%; }
+  .hero-phrase { display:inline-grid; width:100%; min-height:1em; overflow:hidden; line-height:.92; vertical-align:top; }
+  .hero-phrase > span { display:block; width:100%; grid-column:1; grid-row:1; }
   .avatar-stage { bottom:-8%; height:44%; width:68vw; max-width:300px; }
   .hero-sidecar { top:0; right:1rem; max-width:138px; }
   .hero-note { max-width:138px; }

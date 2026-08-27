@@ -118,7 +118,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
   .hero-phrase { display:block; width:100%; line-height:.92; }
   .hero-phrase > span { display:block; width:100%; }
   .avatar-stage { bottom:-8%; height:44%; width:68vw; max-width:300px; }
-  .hero-sidecar-row { margin-top:1.6rem !important; }
   .hero-sidecar { top:0; right:1rem; max-width:138px; }
   .hero-note { max-width:138px; }
   .services-showcase { min-height:auto; }
